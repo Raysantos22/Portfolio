@@ -1085,7 +1085,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
                     <div className="headings-container relative">
                       {/* Main name with enhanced breathing effect */}
                       <h1 className={`text-6xl sm:text-7xl md:text-8xl font-extrabold mb-4 block breathing-title tracking-tight ${darkMode ? 'text-white' : 'text-blue-900'}`} style={{ textShadow: darkMode ? '0 0 15px rgba(147, 197, 253, 0.5)' : '0 0 5px rgba(30, 64, 175, 0.2)' }}>
-                        I'M RAY SANTOS
+                        I'M RAY
                       </h1>
                       
                       {/* MOBILEDEVELOPER as one word with enhanced shimmer effect */}
