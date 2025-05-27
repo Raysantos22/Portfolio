@@ -549,386 +549,57 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
       </div>
     );
   };
-const StarfieldBackground = ({ darkMode = true }) => {
-  const canvasRef = useRef(null);
-  const animationRef = useRef(null);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
-
-  // Minimal settings for clean, subtle effect
-  const settings = {
-    particleCount: 25, // Reduced for minimal look
-    flareCount: 3, // Much fewer flares
-    motion: 0.05, // Gentle movement
-    // High contrast colors for visibility
-    particleColor: darkMode ? '#FFFFFF' : '#000000',
-    linkColor: darkMode ? '#FFFFFF' : '#000000',
-    particleSizeBase: 1, // Smaller particles
-    particleSizeMultiplier: 0.4,
-    flareSizeBase: 60, // Smaller flares
-    flareSizeMultiplier: 40,
-    lineWidth: 0.8, // Thinner lines
-    linkChance: 120, // Less frequent connections
-    linkLengthMin: 2,
-    linkLengthMax: 4, // Shorter connections
-    linkOpacity: darkMode ? 0.4 : 0.5, // More subtle
-    linkFade: 80,
-    linkSpeed: 0.8,
-    glareAngle: -60,
-    glareOpacityMultiplier: darkMode ? 0.06 : 0.08, // Subtle glare
-    flickerSmoothing: 20, // Smoother flickering
-    noiseLength: 1000,
-    noiseStrength: 0.8 // Less movement
-  };
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const context = canvas.getContext('2d');
-    let particles = [];
-    let flares = [];
-    let links = [];
-    let n = 0;
-    const nAngle = (Math.PI * 2) / settings.noiseLength;
-    const nRad = 100;
-    let nPos = { x: 0, y: 0 };
-
-    // Enhanced Particle class
-    class Particle {
-      constructor() {
-        this.x = Math.random() * 1.2 - 0.1; // Standard distribution
-        this.y = Math.random() * 1.2 - 0.1;
-        this.z = Math.random() * 2 + 1; 
-        this.color = settings.particleColor;
-        this.opacity = Math.random() * 0.4 + 0.3; // Lower opacity
-        this.flicker = 0;
-        this.neighbors = [];
-        this.baseOpacity = this.opacity;
-      }
-
-      render() {
-        const pos = position(this.x, this.y, this.z);
-        const r = ((this.z * settings.particleSizeMultiplier) + settings.particleSizeBase) * (sizeRatio() / 1000);
-        let o = this.baseOpacity;
-
-        // Minimal flicker effect
-        const newVal = (Math.random() - 0.5) * 0.2;
-        this.flicker += (newVal - this.flicker) / settings.flickerSmoothing;
-        this.flicker = Math.max(-0.2, Math.min(0.2, this.flicker));
-        o = Math.max(0.1, Math.min(0.8, o + this.flicker));
-
-        // Simple particle without glow
-        context.fillStyle = this.color;
-        context.globalAlpha = o;
-        context.beginPath();
-        context.arc(pos.x, pos.y, r, 0, 2 * Math.PI, false);
-        context.fill();
-        context.closePath();
-
-        // Subtle glare effect
-        context.globalAlpha = o * settings.glareOpacityMultiplier;
-        context.beginPath();
-        context.ellipse(pos.x, pos.y, r * 40, r * 0.6, 
-          (settings.glareAngle - ((nPos.x - 0.5) * settings.noiseStrength * settings.motion)) * (Math.PI / 180), 
-          0, 2 * Math.PI, false);
-        context.fill();
-        context.closePath();
-
-        context.globalAlpha = 1;
-      }
-    }
-
-    // Enhanced Flare class
-    class Flare {
-      constructor() {
-        this.x = Math.random() * 1.3 - 0.15;
-        this.y = Math.random() * 1.3 - 0.15;
-        this.z = Math.random() * 1.5 + 0.5;
-        this.color = settings.particleColor;
-        this.opacity = Math.random() * 0.01 + 0.003; // Very subtle
-        this.pulse = Math.random() * Math.PI * 2;
-        this.pulseSpeed = 0.01;
-      }
-
-      render() {
-        const pos = position(this.x, this.y, this.z);
-        const r = ((this.z * settings.flareSizeMultiplier) + settings.flareSizeBase) * (sizeRatio() / 1000);
-        
-        // Add pulsing effect
-        this.pulse += this.pulseSpeed;
-        const pulseOpacity = this.opacity * (0.7 + 0.3 * Math.sin(this.pulse));
-
-        context.beginPath();
-        context.globalAlpha = pulseOpacity;
-        context.arc(pos.x, pos.y, r, 0, 2 * Math.PI, false);
-        context.fillStyle = this.color;
-        context.fill();
-        context.closePath();
-        context.globalAlpha = 1;
-      }
-    }
-
-    // Enhanced Link class
-    class Link {
-      constructor(startVertex, numPoints) {
-        this.length = numPoints;
-        this.verts = [startVertex];
-        this.stage = 0;
-        this.linked = [startVertex];
-        this.distances = [];
-        this.traveled = 0;
-        this.fade = 0;
-        this.finished = false;
-      }
-
-      render() {
-        switch (this.stage) {
-          case 0: // Vertex collection
-            const last = particles[this.verts[this.verts.length - 1]];
-            if (last && last.neighbors && last.neighbors.length > 0) {
-              const neighbor = last.neighbors[Math.floor(Math.random() * last.neighbors.length)];
-              if (this.verts.indexOf(neighbor) === -1) {
-                this.verts.push(neighbor);
-              }
-            } else {
-              this.stage = 3;
-              this.finished = true;
-            }
-
-            if (this.verts.length >= this.length) {
-              for (let i = 0; i < this.verts.length - 1; i++) {
-                const p1 = particles[this.verts[i]];
-                const p2 = particles[this.verts[i + 1]];
-                const dx = p1.x - p2.x;
-                const dy = p1.y - p2.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                this.distances.push(dist);
-              }
-              this.stage = 1;
-            }
-            break;
-
-          case 1: // Render line animation
-            if (this.distances.length > 0) {
-              const points = [];
-              
-              for (let i = 0; i < this.linked.length; i++) {
-                const p = particles[this.linked[i]];
-                const pos = position(p.x, p.y, p.z);
-                points.push([pos.x, pos.y]);
-              }
-
-              const linkSpeedRel = settings.linkSpeed * 0.00001 * canvas.width;
-              this.traveled += linkSpeedRel;
-              const d = this.distances[this.linked.length - 1];
-
-              if (this.traveled >= d) {
-                this.traveled = 0;
-                this.linked.push(this.verts[this.linked.length]);
-                const p = particles[this.linked[this.linked.length - 1]];
-                const pos = position(p.x, p.y, p.z);
-                points.push([pos.x, pos.y]);
-
-                if (this.linked.length >= this.verts.length) {
-                  this.stage = 2;
-                }
-              } else {
-                const a = particles[this.linked[this.linked.length - 1]];
-                const b = particles[this.verts[this.linked.length]];
-                const t = d - this.traveled;
-                const x = ((this.traveled * b.x) + (t * a.x)) / d;
-                const y = ((this.traveled * b.y) + (t * a.y)) / d;
-                const z = ((this.traveled * b.z) + (t * a.z)) / d;
-
-                const pos = position(x, y, z);
-                points.push([pos.x, pos.y]);
-              }
-
-              this.drawLine(points);
-            } else {
-              this.stage = 3;
-              this.finished = true;
-            }
-            break;
-
-          case 2: // Fade out
-            if (this.verts.length > 1) {
-              if (this.fade < settings.linkFade) {
-                this.fade++;
-                const points = [];
-                const alpha = (1 - (this.fade / settings.linkFade)) * settings.linkOpacity;
-                
-                for (let i = 0; i < this.verts.length; i++) {
-                  const p = particles[this.verts[i]];
-                  const pos = position(p.x, p.y, p.z);
-                  points.push([pos.x, pos.y]);
-                }
-                this.drawLine(points, alpha);
-              } else {
-                this.stage = 3;
-                this.finished = true;
-              }
-            } else {
-              this.stage = 3;
-              this.finished = true;
-            }
-            break;
-
-          default:
-            this.finished = true;
-            break;
-        }
-      }
-
-      drawLine(points, alpha = settings.linkOpacity) {
-        if (points.length > 1 && alpha > 0) {
-          // Clean, minimal lines
-          context.globalAlpha = alpha;
-          context.beginPath();
-          for (let i = 0; i < points.length - 1; i++) {
-            context.moveTo(points[i][0], points[i][1]);
-            context.lineTo(points[i + 1][0], points[i + 1][1]);
-          }
-          context.strokeStyle = settings.linkColor;
-          context.lineWidth = settings.lineWidth;
-          context.stroke();
-          context.closePath();
-          context.globalAlpha = 1;
-        }
-      }
-    }
-
-    // Utility functions
-    function noisePoint(i) {
-      const a = nAngle * i;
-      const cosA = Math.cos(a);
-      const sinA = Math.sin(a);
-      const rad = nRad;
-      return {
-        x: rad * cosA,
-        y: rad * sinA
-      };
-    }
-
-    function position(x, y, z) {
-      return {
-        x: (x * canvas.width) + ((((canvas.width / 2) - mouse.x + ((nPos.x - 0.5) * settings.noiseStrength)) * z) * settings.motion),
-        y: (y * canvas.height) + ((((canvas.height / 2) - mouse.y + ((nPos.y - 0.5) * settings.noiseStrength)) * z) * settings.motion)
-      };
-    }
-
-    function sizeRatio() {
-      return canvas.width >= canvas.height ? canvas.width : canvas.height;
-    }
-
-    function generateNeighbors() {
-      particles.forEach((particle, i) => {
-        particle.neighbors = [];
-        particles.forEach((otherParticle, j) => {
-          if (i !== j) {
-            const dx = particle.x - otherParticle.x;
-            const dy = particle.y - otherParticle.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < 0.25) { // Smaller connection radius
-              particle.neighbors.push(j);
-            }
-          }
-        });
-      });
-    }
-
-    function resize() {
-      canvas.width = canvas.offsetWidth * (window.devicePixelRatio || 1);
-      canvas.height = canvas.offsetHeight * (window.devicePixelRatio || 1);
-    }
-
-    function render() {
-      n++;
-      if (n >= settings.noiseLength) {
-        n = 0;
-      }
-      nPos = noisePoint(n);
-
-      context.clearRect(0, 0, canvas.width, canvas.height);
-
-      particles.forEach(particle => particle.render());
-      flares.forEach(flare => flare.render());
-
-      if (Math.floor(Math.random() * settings.linkChance) === 0) {
-        const length = Math.floor(Math.random() * (settings.linkLengthMax - settings.linkLengthMin + 1)) + settings.linkLengthMin;
-        const start = Math.floor(Math.random() * particles.length);
-        links.push(new Link(start, length));
-      }
-
-      for (let l = links.length - 1; l >= 0; l--) {
-        if (links[l] && !links[l].finished) {
-          links[l].render();
-        } else {
-          links.splice(l, 1);
-        }
-      }
-
-      animationRef.current = requestAnimationFrame(render);
-    }
-
-    function init() {
-      resize();
-
-      for (let i = 0; i < settings.particleCount; i++) {
-        particles.push(new Particle());
-      }
-
-      for (let i = 0; i < settings.flareCount; i++) {
-        flares.push(new Flare());
-      }
-
-      generateNeighbors();
-      render();
-    }
-
-    const handleMouseMove = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      setMouse({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      });
-    };
-
-    const handleResize = () => {
-      resize();
-    };
-
-    canvas.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('resize', handleResize);
-
-    init();
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [darkMode]);
-
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
-        style={{
-          background: darkMode 
-            ? 'radial-gradient(ellipse at center, rgba(15, 23, 42, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%)'
-            : 'radial-gradient(ellipse at center, rgba(248, 250, 252, 0.95) 0%, rgba(226, 232, 240, 0.98) 100%)',
-          zIndex: 1
-        }}
-      />
-      
-   
-    </div>
-  );
+const simplePortfolioBackground = {
+  background: darkMode 
+    ? `
+      linear-gradient(135deg, #1e293b 0%, #334155 100%)
+    `
+    : `
+      linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)
+    `,
+  position: 'relative',
+  overflow: 'hidden'
 };
+
+// Minimal Background Elements (Optional - can be removed for completely plain background)
+const SimpleBackgroundElements = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    {/* Optional: Very subtle floating dots */}
+    <div className={`absolute top-20 left-20 w-2 h-2 rounded-full ${
+      darkMode ? 'bg-slate-400' : 'bg-slate-300'
+    } opacity-30 animate-float-gentle-1`}></div>
+    
+    <div className={`absolute top-40 right-32 w-1 h-1 rounded-full ${
+      darkMode ? 'bg-slate-500' : 'bg-slate-400'
+    } opacity-20 animate-float-gentle-2`}></div>
+    
+    <div className={`absolute bottom-32 left-1/3 w-1.5 h-1.5 rounded-full ${
+      darkMode ? 'bg-slate-400' : 'bg-slate-300'
+    } opacity-25 animate-float-gentle-3`}></div>
+  </div>
+);
+
+// Minimal animations (optional)
+const simpleAnimations = `
+@keyframes float-gentle-1 {
+  0%, 100% { transform: translateY(0px); opacity: 0.3; }
+  50% { transform: translateY(-10px); opacity: 0.5; }
+}
+
+@keyframes float-gentle-2 {
+  0%, 100% { transform: translateY(0px); opacity: 0.2; }
+  50% { transform: translateY(-8px); opacity: 0.4; }
+}
+
+@keyframes float-gentle-3 {
+  0%, 100% { transform: translateY(0px); opacity: 0.25; }
+  50% { transform: translateY(-12px); opacity: 0.45; }
+}
+
+.animate-float-gentle-1 { animation: float-gentle-1 8s ease-in-out infinite; }
+.animate-float-gentle-2 { animation: float-gentle-2 10s ease-in-out infinite 2s; }
+.animate-float-gentle-3 { animation: float-gentle-3 12s ease-in-out infinite 4s; }
+`;
   const projectsData = [
     {
       id: 1,
@@ -1367,14 +1038,13 @@ const StarfieldBackground = ({ darkMode = true }) => {
       />
       
       {/* Main Content */}
-<main className="flex-grow pt-1">
-  {/* Fixed Starfield Background for entire page */}
-  <div className="fixed inset-0 z-0">
-    <StarfieldBackground darkMode={darkMode} />
-  </div>
-  
-  {/* All your existing sections */}
-  <section className="min-h-screen flex items-center px-4 py-16 relative z-10">
+      <main className="flex-grow pt-1">
+        {/* Enhanced Home Section with Better Visual Appeal */}
+        <section 
+   className="min-h-screen flex items-center px-4 py-16 relative"
+  style={simplePortfolioBackground}
+>
+  <SimpleBackgroundElements />
           {/* Content Container - Mobile: Image on Top, Desktop: Image on LEFT */}
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center z-10 px-4">
             {/* PHOTO ON LEFT (Desktop) / TOP (Mobile) */}
@@ -1531,14 +1201,10 @@ const StarfieldBackground = ({ darkMode = true }) => {
 
        
 {/* Projects Section with Working Filter Buttons and Show More/Less functionality */}
- <section 
-    ref={projectsRef} 
-    className="flex items-center px-4 py-12 overflow-hidden relative z-10 transition-all duration-500"
-    style={{
-      minHeight: visibleProjects && visibleProjects.length <= 2 ? '800px' : '1200px',
-      // Remove the background style - let starfield show through
-    }}
-  >
+<section 
+          ref={projectsRef} 
+    className={`min-h-screen py-24 px-4 ${darkMode ? 'bg-gray-900 bg-opacity-20' : 'bg-white bg-opacity-70'} backdrop-filter backdrop-blur-sm`}
+>
           <div className="w-full max-w-7xl mx-auto">
             <div className="text-center mb-8">
               <h2 className={`text-4xl font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'} inline-block relative`}>
@@ -1783,9 +1449,8 @@ const StarfieldBackground = ({ darkMode = true }) => {
 {/* About Section with Resume Data */}
 <section 
   ref={aboutRef} 
-className="flex items-center px-4 py-12 overflow-hidden relative z-10 transition-all duration-500"
-   
-  >
+  className={`min-h-screen py-24 px-4 ${darkMode ? 'bg-gray-900 bg-opacity-20' : 'bg-white bg-opacity-70'} backdrop-filter backdrop-blur-sm`}
+>
   <div className="max-w-6xl mx-auto">
     <div className="text-center mb-16">
       <h2 className={`text-4xl font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'} inline-block relative`}>
@@ -2767,22 +2432,19 @@ className="flex items-center px-4 py-12 overflow-hidden relative z-10 transition
   {/* Contact Section */}
 <section 
   ref={contactRef} 
-  className={`min-h-screen py-24 px-4 `}
+  className={`min-h-screen py-24 px-4 ${darkMode ? 'bg-gray-900 bg-opacity-30' : 'bg-white bg-opacity-70'} backdrop-filter backdrop-blur-sm`}
 >
-  
   <div className="max-w-5xl mx-auto">
     <div className="text-center mb-16">
       <h2 className={`text-4xl font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'} inline-block relative`}>
         Get In Touch
         <span className={`absolute -bottom-2 left-0 w-full h-1 ${darkMode ? 'bg-blue-400' : 'bg-blue-600'} rounded`}></span>
       </h2>
-           <div className={`w-32 h-1 ${darkMode ? 'bg-blue-500' : 'bg-blue-600'} mx-auto mb-8 rounded-full`}></div>
-  <p className={`max-w-2xl mx-auto ${darkMode ? 'text-blue-300' : 'text-blue-700'} mb-12 relative z-10 text-lg`}>
-            Interested in working together? Feel free to contact me for any project or collaboration.
-
-  </p>
+      <p className={`${darkMode ? 'text-blue-200' : 'text-blue-800'} mt-6 max-w-2xl mx-auto`}>
+        Interested in working together? Feel free to contact me for any project or collaboration.
+      </p>
     </div>
-
+    
     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
       <AnimatedText direction="left" delay={0}>
         <div className={`${darkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white bg-opacity-80'} backdrop-filter backdrop-blur-sm p-8 rounded-2xl shadow-2xl transform transition-all duration-500 hover:scale-105`}>
@@ -2805,7 +2467,6 @@ className="flex items-center px-4 py-12 overflow-hidden relative z-10 transition
                 <svg className={`w-5 h-5 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                 </svg>
-                
               </div>
               <div>
                 <h4 className={`text-lg font-semibold ${darkMode ? 'text-blue-200' : 'text-blue-700'}`}>Phone</h4>
@@ -2980,7 +2641,7 @@ className="flex items-center px-4 py-12 overflow-hidden relative z-10 transition
       </main>
       
      {/* Footer */}
-<footer className={`${darkMode ? 'bg-white' : 'bg-black'} text-white py-8`}>
+<footer className={`${darkMode ? 'bg-gray-900' : 'bg-blue-900'} text-white py-8`}>
   <div className="max-w-6xl mx-auto px-4">
     <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
       {/* Logo and Brief Description */}
