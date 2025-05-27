@@ -554,30 +554,28 @@ const StarfieldBackground = ({ darkMode = true }) => {
   const animationRef = useRef(null);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
-  // Minimal settings for clean, subtle effect
+  // Settings
   const settings = {
-    particleCount: 25, // Reduced for minimal look
-    flareCount: 3, // Much fewer flares
-    motion: 0.05, // Gentle movement
-    // High contrast colors for visibility
-    particleColor: darkMode ? '#FFFFFF' : '#000000',
-    linkColor: darkMode ? '#FFFFFF' : '#000000',
-    particleSizeBase: 1, // Smaller particles
-    particleSizeMultiplier: 0.4,
-    flareSizeBase: 60, // Smaller flares
-    flareSizeMultiplier: 40,
-    lineWidth: 0.8, // Thinner lines
-    linkChance: 120, // Less frequent connections
-    linkLengthMin: 2,
-    linkLengthMax: 4, // Shorter connections
-    linkOpacity: darkMode ? 0.4 : 0.5, // More subtle
-    linkFade: 80,
-    linkSpeed: 0.8,
+    particleCount: 40,
+    flareCount: 10,
+    motion: 0.05,
+    color: darkMode ? '#FFFFFF' : '#000000', // White in dark mode, black in light mode
+    particleSizeBase: 1,
+    particleSizeMultiplier: 0.5,
+    flareSizeBase: 100,
+    flareSizeMultiplier: 100,
+    lineWidth: darkMode ? 2 : 1.5, // Thicker lines for better visibility
+    linkChance: 50, // Increased chance for more frequent links
+    linkLengthMin: 3,
+    linkLengthMax: 8,
+    linkOpacity: darkMode ? 0.6 : 0.4, // Higher opacity for more visible lines
+    linkFade: 120, // Slower fade for longer visibility
+    linkSpeed: 0.8, // Slightly slower for better visibility
     glareAngle: -60,
-    glareOpacityMultiplier: darkMode ? 0.06 : 0.08, // Subtle glare
-    flickerSmoothing: 20, // Smoother flickering
+    glareOpacityMultiplier: darkMode ? 0.03 : 0.02,
+    flickerSmoothing: 15,
     noiseLength: 1000,
-    noiseStrength: 0.8 // Less movement
+    noiseStrength: 1
   };
 
   useEffect(() => {
@@ -588,36 +586,37 @@ const StarfieldBackground = ({ darkMode = true }) => {
     let particles = [];
     let flares = [];
     let links = [];
+    let vertices = [];
+    let triangles = [];
     let n = 0;
     const nAngle = (Math.PI * 2) / settings.noiseLength;
     const nRad = 100;
     let nPos = { x: 0, y: 0 };
 
-    // Enhanced Particle class
+    // Particle class
     class Particle {
       constructor() {
-        this.x = Math.random() * 1.2 - 0.1; // Standard distribution
+        this.x = Math.random() * 1.2 - 0.1; // -0.1 to 1.1
         this.y = Math.random() * 1.2 - 0.1;
-        this.z = Math.random() * 2 + 1; 
-        this.color = settings.particleColor;
-        this.opacity = Math.random() * 0.4 + 0.3; // Lower opacity
+        this.z = Math.random() * 4;
+        this.color = settings.color;
+        this.opacity = Math.random() * 0.7 + 0.3; // Higher base opacity
         this.flicker = 0;
         this.neighbors = [];
-        this.baseOpacity = this.opacity;
       }
 
       render() {
         const pos = position(this.x, this.y, this.z);
         const r = ((this.z * settings.particleSizeMultiplier) + settings.particleSizeBase) * (sizeRatio() / 1000);
-        let o = this.baseOpacity;
+        let o = this.opacity;
 
-        // Minimal flicker effect
-        const newVal = (Math.random() - 0.5) * 0.2;
+        // Flicker effect
+        const newVal = (Math.random() - 0.5);
         this.flicker += (newVal - this.flicker) / settings.flickerSmoothing;
-        this.flicker = Math.max(-0.2, Math.min(0.2, this.flicker));
-        o = Math.max(0.1, Math.min(0.8, o + this.flicker));
+        this.flicker = Math.max(-0.3, Math.min(0.3, this.flicker));
+        o = Math.max(0.1, Math.min(1, o + this.flicker));
 
-        // Simple particle without glow
+        // Draw particle
         context.fillStyle = this.color;
         context.globalAlpha = o;
         context.beginPath();
@@ -625,10 +624,10 @@ const StarfieldBackground = ({ darkMode = true }) => {
         context.fill();
         context.closePath();
 
-        // Subtle glare effect
+        // Draw glare
         context.globalAlpha = o * settings.glareOpacityMultiplier;
         context.beginPath();
-        context.ellipse(pos.x, pos.y, r * 40, r * 0.6, 
+        context.ellipse(pos.x, pos.y, r * 100, r, 
           (settings.glareAngle - ((nPos.x - 0.5) * settings.noiseStrength * settings.motion)) * (Math.PI / 180), 
           0, 2 * Math.PI, false);
         context.fill();
@@ -638,28 +637,22 @@ const StarfieldBackground = ({ darkMode = true }) => {
       }
     }
 
-    // Enhanced Flare class
+    // Flare class
     class Flare {
       constructor() {
-        this.x = Math.random() * 1.3 - 0.15;
-        this.y = Math.random() * 1.3 - 0.15;
-        this.z = Math.random() * 1.5 + 0.5;
-        this.color = settings.particleColor;
-        this.opacity = Math.random() * 0.01 + 0.003; // Very subtle
-        this.pulse = Math.random() * Math.PI * 2;
-        this.pulseSpeed = 0.01;
+        this.x = Math.random() * 1.5 - 0.25;
+        this.y = Math.random() * 1.5 - 0.25;
+        this.z = Math.random() * 2;
+        this.color = settings.color;
+        this.opacity = Math.random() * 0.015 + 0.005; // Slightly more visible
       }
 
       render() {
         const pos = position(this.x, this.y, this.z);
         const r = ((this.z * settings.flareSizeMultiplier) + settings.flareSizeBase) * (sizeRatio() / 1000);
-        
-        // Add pulsing effect
-        this.pulse += this.pulseSpeed;
-        const pulseOpacity = this.opacity * (0.7 + 0.3 * Math.sin(this.pulse));
 
         context.beginPath();
-        context.globalAlpha = pulseOpacity;
+        context.globalAlpha = this.opacity;
         context.arc(pos.x, pos.y, r, 0, 2 * Math.PI, false);
         context.fillStyle = this.color;
         context.fill();
@@ -668,7 +661,7 @@ const StarfieldBackground = ({ darkMode = true }) => {
       }
     }
 
-    // Enhanced Link class
+    // Link class
     class Link {
       constructor(startVertex, numPoints) {
         this.length = numPoints;
@@ -782,17 +775,24 @@ const StarfieldBackground = ({ darkMode = true }) => {
 
       drawLine(points, alpha = settings.linkOpacity) {
         if (points.length > 1 && alpha > 0) {
-          // Clean, minimal lines
           context.globalAlpha = alpha;
           context.beginPath();
+          
+          // Add glow effect for better visibility
+          context.shadowColor = settings.color;
+          context.shadowBlur = darkMode ? 3 : 1;
+          
           for (let i = 0; i < points.length - 1; i++) {
             context.moveTo(points[i][0], points[i][1]);
             context.lineTo(points[i + 1][0], points[i + 1][1]);
           }
-          context.strokeStyle = settings.linkColor;
+          context.strokeStyle = settings.color;
           context.lineWidth = settings.lineWidth;
           context.stroke();
           context.closePath();
+          
+          // Reset shadow
+          context.shadowBlur = 0;
           context.globalAlpha = 1;
         }
       }
@@ -821,6 +821,7 @@ const StarfieldBackground = ({ darkMode = true }) => {
       return canvas.width >= canvas.height ? canvas.width : canvas.height;
     }
 
+    // Simple Delaunay triangulation approximation
     function generateNeighbors() {
       particles.forEach((particle, i) => {
         particle.neighbors = [];
@@ -829,7 +830,7 @@ const StarfieldBackground = ({ darkMode = true }) => {
             const dx = particle.x - otherParticle.x;
             const dy = particle.y - otherParticle.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < 0.25) { // Smaller connection radius
+            if (distance < 0.4) { // Slightly larger neighbor threshold for more connections
               particle.neighbors.push(j);
             }
           }
@@ -843,23 +844,30 @@ const StarfieldBackground = ({ darkMode = true }) => {
     }
 
     function render() {
+      // Update noise position
       n++;
       if (n >= settings.noiseLength) {
         n = 0;
       }
       nPos = noisePoint(n);
 
+      // Clear canvas
       context.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Render particles
       particles.forEach(particle => particle.render());
+
+      // Render flares
       flares.forEach(flare => flare.render());
 
+      // Possibly start a new link
       if (Math.floor(Math.random() * settings.linkChance) === 0) {
         const length = Math.floor(Math.random() * (settings.linkLengthMax - settings.linkLengthMin + 1)) + settings.linkLengthMin;
         const start = Math.floor(Math.random() * particles.length);
         links.push(new Link(start, length));
       }
 
+      // Render existing links
       for (let l = links.length - 1; l >= 0; l--) {
         if (links[l] && !links[l].finished) {
           links[l].render();
@@ -871,21 +879,28 @@ const StarfieldBackground = ({ darkMode = true }) => {
       animationRef.current = requestAnimationFrame(render);
     }
 
+    // Initialize
     function init() {
       resize();
 
+      // Create particles
       for (let i = 0; i < settings.particleCount; i++) {
         particles.push(new Particle());
       }
 
+      // Create flares
       for (let i = 0; i < settings.flareCount; i++) {
         flares.push(new Flare());
       }
 
+      // Generate neighbors
       generateNeighbors();
+
+      // Start animation
       render();
     }
 
+    // Mouse tracking
     const handleMouseMove = (e) => {
       const rect = canvas.getBoundingClientRect();
       setMouse({
@@ -894,6 +909,7 @@ const StarfieldBackground = ({ darkMode = true }) => {
       });
     };
 
+    // Window resize
     const handleResize = () => {
       resize();
     };
@@ -910,7 +926,7 @@ const StarfieldBackground = ({ darkMode = true }) => {
       canvas.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
     };
-  }, [darkMode]);
+  }, [darkMode]); // Added darkMode as dependency to re-initialize when mode changes
 
   return (
     <div className="absolute inset-0 overflow-hidden">
@@ -919,13 +935,11 @@ const StarfieldBackground = ({ darkMode = true }) => {
         className="absolute inset-0 w-full h-full"
         style={{
           background: darkMode 
-            ? 'radial-gradient(ellipse at center, rgba(15, 23, 42, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%)'
-            : 'radial-gradient(ellipse at center, rgba(248, 250, 252, 0.95) 0%, rgba(226, 232, 240, 0.98) 100%)',
+            ? 'radial-gradient(ellipse at center, rgba(30,30,50,1) 0%, rgba(10,10,30,1) 100%)'
+            : 'radial-gradient(ellipse at center, rgba(240,240,255,1) 0%, rgba(220,220,240,1) 100%)',
           zIndex: 1
         }}
       />
-      
-   
     </div>
   );
 };
@@ -2779,13 +2793,11 @@ className="flex items-center px-4 py-12 overflow-hidden relative z-10 transition
         Get In Touch
         <span className={`absolute -bottom-2 left-0 w-full h-1 ${darkMode ? 'bg-blue-400' : 'bg-blue-600'} rounded`}></span>
       </h2>
-           <div className={`w-32 h-1 ${darkMode ? 'bg-blue-500' : 'bg-blue-600'} mx-auto mb-8 rounded-full`}></div>
-  <p className={`max-w-2xl mx-auto ${darkMode ? 'text-blue-300' : 'text-blue-700'} mb-12 relative z-10 text-lg`}>
-            Interested in working together? Feel free to contact me for any project or collaboration.
-
-  </p>
+      <p className={`${darkMode ? 'text-blue-200' : 'text-blue-800'} mt-6 max-w-2xl mx-auto`}>
+        Interested in working together? Feel free to contact me for any project or collaboration.
+      </p>
     </div>
-
+    
     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
       <AnimatedText direction="left" delay={0}>
         <div className={`${darkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white bg-opacity-80'} backdrop-filter backdrop-blur-sm p-8 rounded-2xl shadow-2xl transform transition-all duration-500 hover:scale-105`}>
