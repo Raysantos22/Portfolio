@@ -549,57 +549,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
       </div>
     );
   };
-const simplePortfolioBackground = {
-  background: darkMode 
-    ? `
-      linear-gradient(135deg, #1e293b 0%, #334155 100%)
-    `
-    : `
-      linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)
-    `,
-  position: 'relative',
-  overflow: 'hidden'
-};
-
-// Minimal Background Elements (Optional - can be removed for completely plain background)
-const SimpleBackgroundElements = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    {/* Optional: Very subtle floating dots */}
-    <div className={`absolute top-20 left-20 w-2 h-2 rounded-full ${
-      darkMode ? 'bg-slate-400' : 'bg-slate-300'
-    } opacity-30 animate-float-gentle-1`}></div>
-    
-    <div className={`absolute top-40 right-32 w-1 h-1 rounded-full ${
-      darkMode ? 'bg-slate-500' : 'bg-slate-400'
-    } opacity-20 animate-float-gentle-2`}></div>
-    
-    <div className={`absolute bottom-32 left-1/3 w-1.5 h-1.5 rounded-full ${
-      darkMode ? 'bg-slate-400' : 'bg-slate-300'
-    } opacity-25 animate-float-gentle-3`}></div>
-  </div>
-);
-
-// Minimal animations (optional)
-const simpleAnimations = `
-@keyframes float-gentle-1 {
-  0%, 100% { transform: translateY(0px); opacity: 0.3; }
-  50% { transform: translateY(-10px); opacity: 0.5; }
-}
-
-@keyframes float-gentle-2 {
-  0%, 100% { transform: translateY(0px); opacity: 0.2; }
-  50% { transform: translateY(-8px); opacity: 0.4; }
-}
-
-@keyframes float-gentle-3 {
-  0%, 100% { transform: translateY(0px); opacity: 0.25; }
-  50% { transform: translateY(-12px); opacity: 0.45; }
-}
-
-.animate-float-gentle-1 { animation: float-gentle-1 8s ease-in-out infinite; }
-.animate-float-gentle-2 { animation: float-gentle-2 10s ease-in-out infinite 2s; }
-.animate-float-gentle-3 { animation: float-gentle-3 12s ease-in-out infinite 4s; }
-`;
+  
   const projectsData = [
     {
       id: 1,
@@ -1041,10 +991,27 @@ const simpleAnimations = `
       <main className="flex-grow pt-1">
         {/* Enhanced Home Section with Better Visual Appeal */}
         <section 
-   className="min-h-screen flex items-center px-4 py-16 relative"
-  style={simplePortfolioBackground}
->
-  <SimpleBackgroundElements />
+          ref={homeRef} 
+          className={`min-h-screen flex items-center px-4 py-16 overflow-hidden relative`}
+          style={{
+            background: darkMode 
+              ? 'radial-gradient(circle at 30% 70%, rgba(30, 64, 175, 0.15), transparent 70%), radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.15), transparent 70%)'
+              : 'radial-gradient(circle at 30% 70%, rgba(219, 234, 254, 0.7), transparent 70%), radial-gradient(circle at 70% 30%, rgba(199, 210, 254, 0.7), transparent 70%)'
+          }}
+        >
+          {/* Enhanced Animated Background Elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            {/* Larger, more vibrant background elements */}
+            <div className={`absolute -top-40 -right-40 w-144 h-144 rounded-full ${darkMode ? 'bg-blue-900 bg-opacity-40' : 'bg-blue-500 bg-opacity-25'} blur-3xl animate-float-slow`}></div>
+            <div className={`absolute top-1/3 -left-32 w-96 h-96 rounded-full ${darkMode ? 'bg-indigo-900 bg-opacity-40' : 'bg-indigo-500 bg-opacity-25'} blur-3xl animate-float-medium`}></div>
+            <div className={`absolute bottom-1/4 right-1/5 w-112 h-112 rounded-full ${darkMode ? 'bg-cyan-900 bg-opacity-40' : 'bg-cyan-500 bg-opacity-25'} blur-3xl animate-float-fast`}></div>
+            <div className={`absolute top-2/3 left-1/4 w-80 h-80 rounded-full ${darkMode ? 'bg-purple-900 bg-opacity-40' : 'bg-purple-500 bg-opacity-25'} blur-3xl animate-float-medium`}></div>
+            
+            {/* Additional elements for more visual interest */}
+            <div className={`absolute top-1/2 right-1/3 w-64 h-64 rounded-full ${darkMode ? 'bg-blue-800 bg-opacity-30' : 'bg-blue-300 bg-opacity-30'} blur-3xl animate-pulse-slow`}></div>
+            <div className={`absolute bottom-1/3 left-1/2 w-48 h-48 rounded-full ${darkMode ? 'bg-indigo-800 bg-opacity-30' : 'bg-indigo-300 bg-opacity-30'} blur-3xl animate-float-slow-reverse`}></div>
+          </div>
+
           {/* Content Container - Mobile: Image on Top, Desktop: Image on LEFT */}
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center z-10 px-4">
             {/* PHOTO ON LEFT (Desktop) / TOP (Mobile) */}
@@ -1203,8 +1170,24 @@ const simpleAnimations = `
 {/* Projects Section with Working Filter Buttons and Show More/Less functionality */}
 <section 
           ref={projectsRef} 
-    className={`min-h-screen py-24 px-4 ${darkMode ? 'bg-gray-900 bg-opacity-20' : 'bg-white bg-opacity-70'} backdrop-filter backdrop-blur-sm`}
->
+          className={`flex items-center px-4 py-12 overflow-hidden relative transition-all duration-500`}
+          style={{
+            minHeight: visibleProjects && visibleProjects.length <= 2 ? '800px' : '1200px',
+            background: darkMode 
+              ? 'radial-gradient(circle at 30% 70%, rgba(30, 64, 175, 0.15), transparent 70%), radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.15), transparent 70%)'
+              : 'radial-gradient(circle at 30% 70%, rgba(219, 234, 254, 0.7), transparent 70%), radial-gradient(circle at 70% 30%, rgba(199, 210, 254, 0.7), transparent 70%)'
+          }}
+        >
+          {/* Background elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className={`absolute -top-40 -right-40 w-144 h-144 rounded-full ${darkMode ? 'bg-blue-900 bg-opacity-40' : 'bg-blue-500 bg-opacity-25'} blur-3xl animate-float-slow`}></div>
+            <div className={`absolute top-1/3 -left-32 w-96 h-96 rounded-full ${darkMode ? 'bg-indigo-900 bg-opacity-40' : 'bg-indigo-500 bg-opacity-25'} blur-3xl animate-float-medium`}></div>
+            <div className={`absolute bottom-1/4 right-1/5 w-112 h-112 rounded-full ${darkMode ? 'bg-cyan-900 bg-opacity-40' : 'bg-cyan-500 bg-opacity-25'} blur-3xl animate-float-fast`}></div>
+            <div className={`absolute top-2/3 left-1/4 w-80 h-80 rounded-full ${darkMode ? 'bg-purple-900 bg-opacity-40' : 'bg-purple-500 bg-opacity-25'} blur-3xl animate-float-medium`}></div>
+            <div className={`absolute top-1/2 right-1/3 w-64 h-64 rounded-full ${darkMode ? 'bg-blue-800 bg-opacity-30' : 'bg-blue-300 bg-opacity-30'} blur-3xl animate-pulse-slow`}></div>
+            <div className={`absolute bottom-1/3 left-1/2 w-48 h-48 rounded-full ${darkMode ? 'bg-indigo-800 bg-opacity-30' : 'bg-indigo-300 bg-opacity-30'} blur-3xl animate-float-slow-reverse`}></div>
+          </div>
+          
           <div className="w-full max-w-7xl mx-auto">
             <div className="text-center mb-8">
               <h2 className={`text-4xl font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'} inline-block relative`}>
