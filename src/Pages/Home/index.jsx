@@ -25,7 +25,7 @@ const Preloader = ({ setLoading, darkMode }) => {
 };
 
 // Scroll to top button component
-const ScrollToTopButton = ({ homeRef, darkMode }) => {
+const ScrollToTopButton = ({ homeRef, darkMode, isMobile }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -45,6 +45,9 @@ const ScrollToTopButton = ({ homeRef, darkMode }) => {
     homeRef.current.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Hide on mobile devices
+  if (isMobile) return null;
+
   return (
     <button
       onClick={scrollToTop}
@@ -58,6 +61,7 @@ const ScrollToTopButton = ({ homeRef, darkMode }) => {
     </button>
   );
 };
+
 
 // Animated text component - reveals elements as they enter viewport
 const AnimatedText = ({ children, delay = 0, direction = 'up' }) => {
@@ -111,7 +115,10 @@ const AnimatedText = ({ children, delay = 0, direction = 'up' }) => {
 };
 
 // Dark Mode Toggle Button
-const DarkModeToggle = ({ darkMode, toggleDarkMode }) => {
+const DarkModeToggle = ({ darkMode, toggleDarkMode, showHamburger, isMobile }) => {
+  // Hide when hamburger menu is shown on mobile
+  if (isMobile && showHamburger) return null;
+  
   return (
     <button 
       onClick={toggleDarkMode}
@@ -162,44 +169,132 @@ const DarkModeToggle = ({ darkMode, toggleDarkMode }) => {
 };
 
 // Navigation component that changes color on scroll
-const Navigation = ({ activeSection, scrollToSection, navItems, darkMode }) => {
+// Navigation component with hamburger menu when scrolled past projects
+const Navigation = ({ activeSection, scrollToSection, navItems, darkMode, isMobile, projectsRef }) => {
   const [scrolled, setScrolled] = useState(false);
+  const [showHamburger, setShowHamburger] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const isScrolled = window.scrollY > 100;
+      const projectsPosition = projectsRef.current ? projectsRef.current.offsetTop : 0;
+      const shouldShowHamburger = window.scrollY >= projectsPosition - 100; // Show hamburger 100px before projects section
+      
       if (isScrolled !== scrolled) {
         setScrolled(isScrolled);
+      }
+      if (shouldShowHamburger !== showHamburger) {
+        setShowHamburger(shouldShowHamburger);
       }
     };
     
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [scrolled]);
+  }, [scrolled, showHamburger, projectsRef]);
 
+  // Close mobile menu when clicking on a nav item
+  const handleNavClick = (ref) => {
+    scrollToSection(ref);
+    setMobileMenuOpen(false);
+  };
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    if (mobileMenuOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [mobileMenuOpen]);
+
+  if (isMobile && showHamburger) {
+    // Mobile Navigation with Hamburger Menu (only when scrolled past projects)
+    return (
+      <>
+        {/* Mobile Hamburger Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setMobileMenuOpen(!mobileMenuOpen);
+          }}
+          className={`fixed top-6 left-6 z-50 w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-500 ${
+            darkMode ? 'bg-gray-900 bg-opacity-90' : 'bg-white bg-opacity-90'
+          } shadow-lg`}
+        >
+          <div className="w-6 h-6 flex flex-col justify-center items-center">
+            <span className={`block w-5 h-0.5 transition-all duration-300 ${
+              darkMode ? 'bg-gray-300' : 'bg-gray-700'
+            } ${mobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
+            <span className={`block w-5 h-0.5 mt-1 transition-all duration-300 ${
+              darkMode ? 'bg-gray-300' : 'bg-gray-700'
+            } ${mobileMenuOpen ? 'opacity-0' : ''}`}></span>
+            <span className={`block w-5 h-0.5 mt-1 transition-all duration-300 ${
+              darkMode ? 'bg-gray-300' : 'bg-gray-700'
+            } ${mobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+          </div>
+        </button>
+
+        {/* Mobile Menu Overlay */}
+        <div className={`fixed inset-0 z-40 transition-all duration-300 ${
+          mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}>
+          {/* Background overlay */}
+          <div className={`absolute inset-0 ${darkMode ? 'bg-gray-900' : 'bg-white'} bg-opacity-95 backdrop-blur-sm`}></div>
+          
+          {/* Menu Items */}
+          <div className="relative z-50 flex flex-col items-center justify-center h-full space-y-8">
+            {navItems.map((item, index) => (
+              <button
+                key={item.name}
+                onClick={() => handleNavClick(item.ref)}
+                className={`text-2xl font-bold transition-all duration-300 transform ${
+                  mobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                } ${
+                  activeSection === item.name.toLowerCase() 
+                    ? (darkMode ? 'text-blue-400' : 'text-blue-600') 
+                    : (darkMode ? 'text-gray-300' : 'text-gray-700')
+                } hover:${darkMode ? 'text-blue-400' : 'text-blue-600'} hover:scale-110`}
+                style={{ 
+                  transitionDelay: mobileMenuOpen ? `${index * 100}ms` : '0ms' 
+                }}
+              >
+                {item.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Regular Navigation Bar (Desktop and Mobile before projects section)
   return (
     <nav className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 backdrop-blur-sm transition-all duration-500 rounded-full px-4 sm:px-6 py-3 ${
-      scrolled 
-        ? `${darkMode ? 'bg-gray-900 bg-opacity-90' : 'bg-white bg-opacity-90'} shadow-lg` 
-        : 'bg-transparent shadow-none'
-    }`}>
-        <div className="flex items-center space-x-4 sm:space-x-8"> {/* Increased spacing */}
+      darkMode ? 'bg-gray-900 bg-opacity-90' : 'bg-white bg-opacity-90'
+    } shadow-lg`}>
+      <div className={`flex items-center ${isMobile ? 'space-x-4 sm:space-x-8'  : 'space-x-4 sm:space-x-8'}`}>
         {navItems.map((item) => (
-            <button
+          <button
             key={item.name}
-            className={`text-sm sm:text-base font-bold transition-all duration-300 relative
-                ${activeSection === item.name.toLowerCase() ? (darkMode ? 'text-blue-400' : 'text-blue-600') : (darkMode ? 'text-gray-300' : 'text-gray-700')}
-                hover:${darkMode ? 'text-blue-400' : 'text-blue-600'}`}
+            className={`${isMobile ? 'text-xs' : 'text-sm sm:text-base'} font-bold transition-all duration-300 relative
+              ${activeSection === item.name.toLowerCase() ? (darkMode ? 'text-blue-400' : 'text-blue-600') : (darkMode ? 'text-gray-300' : 'text-gray-700')}
+              hover:${darkMode ? 'text-blue-400' : 'text-blue-600'}`}
             onClick={() => scrollToSection(item.ref)}
-            >
+          >
             {item.name}
-            </button>
+          </button>
         ))}
-        </div>
+      </div>
     </nav>
   );
 };
-
 const Portfolio = () => {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('home');
@@ -209,6 +304,8 @@ const Portfolio = () => {
   const [isScrolling, setIsScrolling] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+
   const [activeFilter, setActiveFilter] = useState('all');
   const [showAll, setShowAll] = useState(false);
   const initialLimit = 4;
@@ -557,7 +654,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
       tagText: "🏆 Winner of TSU 2024 Best Thesis Award in BSCS",
       tagColor: darkMode => darkMode ? "text-yellow-300" : "text-yellow-600",
       type: "mobile",
-      imagePath: "/images/phone.png",
+      imagePath: "/images/snakedetection.png",
       projectLink: "/projects/skin-disease-detection",
       liveUrl: "https://example.com/demo/skin-disease-app",
       repoUrl: "https://github.com/yourusername/skin-disease-detection",
@@ -650,7 +747,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
       tagText: "In-house POS system for BW Super Bakeshop",
       tagColor: darkMode => darkMode ? "text-blue-300" : "text-blue-600",
       type: "system",
-      imagePath: "/images/phone.png",
+      imagePath: "/images/iskoyanlaptop1.png",
       projectLink: "/projects/ecpos-system",
       liveUrl: "https://demo.bwsuperbakeshop.com/pos",
       repoUrl: "https://github.com/yourusername/ecpos-system",
@@ -721,7 +818,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
       tagText: "Mobile application for health monitoring",
       tagColor: darkMode => darkMode ? "text-green-300" : "text-green-600",
       type: "mobile",
-      imagePath: "/images/phone.png",
+      imagePath: "/images/attendancefs1.png",
       projectLink: "/projects/health-tracker",
       liveUrl: "https://play.google.com/store/apps/healthtracker",
       repoUrl: "https://github.com/yourusername/health-tracker",
@@ -733,7 +830,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
         },
         {
           icon: "💡",
-          text: "Integration with wearable devices and health APIs"
+          text: "Integration with wearable devices and health APIs "
         },
         {
           icon: "🔔",
@@ -756,6 +853,87 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
           color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800" 
         },
         { 
+          name: "Android",
+          iconPath: "/images/firebase.png", 
+          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
+        },
+           { 
+          name: "Android",
+          iconPath: "/images/firebase.png", 
+          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
+        },
+        { 
+          name: "Android",
+          iconPath: "/images/firebase.png", 
+          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
+        },
+        { 
+          name: "Room DB",
+          iconPath: "/images/roomdb.png", 
+          color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800" 
+        }
+      ],
+      screenshots: [
+        {
+          src: "/images/health-screenshot1.png",
+          alt: "Activity dashboard"
+        },
+        {
+          src: "/images/health-screenshot2.png",
+          alt: "Nutrition tracker"
+        },
+        {
+          src: "/images/health-screenshot3.png",
+          alt: "Sleep analysis"
+        }
+      ]
+    },
+     {
+      id: 4,
+      title: "Health Tracking App",
+      tagText: "Mobile application for health monitoring",
+      tagColor: darkMode => darkMode ? "text-green-300" : "text-green-600",
+      type: "mobile",
+      imagePath: "/images/attendancefs1.png",
+      projectLink: "/projects/health-tracker",
+      liveUrl: "https://play.google.com/store/apps/healthtracker",
+      repoUrl: "https://github.com/yourusername/health-tracker",
+      description: "A comprehensive health tracking mobile application that allows users to monitor their physical activities, nutrition intake, sleep patterns, and overall wellbeing. Features include personalized insights, integration with wearable devices, and goal setting with progress tracking.",
+      features: [
+        {
+          icon: "📱",
+          text: "Clean UI/UX with activity tracking and personalized insights"
+        },
+        {
+          icon: "💡",
+          text: "Integration with wearable devices and health APIs "
+        },
+        {
+          icon: "🔔",
+          text: "Customizable notifications and health reminders"
+        },
+        {
+          icon: "📊",
+          text: "Data visualization for health metrics over time"
+        }
+      ],
+      technologies: [
+        { 
+          name: "Kotlin",
+          iconPath: "/images/kotlin.png", 
+          color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800" 
+        },
+        { 
+          name: "Firebase",
+          iconPath: "/images/firebase.png", 
+          color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800" 
+        },
+        { 
+          name: "Android",
+          iconPath: "/images/firebase.png", 
+          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
+        },
+           { 
           name: "Android",
           iconPath: "/images/firebase.png", 
           color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
@@ -788,7 +966,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
     },
     // Continue with the rest of your projects...
     {
-      id: 4,
+      id: 5,
       title: "E-commerce Solution",
       tagText: "Full-featured shopping platform",
       tagColor: darkMode => darkMode ? "text-emerald-300" : "text-emerald-600",
@@ -878,17 +1056,18 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
   }, [activeFilter]);
   
   // Check if viewport is mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
+useEffect(() => {
+  const checkScreenSize = () => {
+    const width = window.innerWidth;
+    setIsMobile(width < 768);
+    setIsTablet(width >= 768 && width < 1024);
+  };
+  
+  checkScreenSize();
+  window.addEventListener('resize', checkScreenSize);
+  
+  return () => window.removeEventListener('resize', checkScreenSize);
+}, []);
   // Nav items and other setup
   const navItems = [
     { name: 'Home', ref: homeRef },
@@ -977,15 +1156,18 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
       <DarkModeToggle darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       
       {/* Scroll to top button */}
-      <ScrollToTopButton homeRef={homeRef} darkMode={darkMode} />
+<ScrollToTopButton homeRef={homeRef} darkMode={darkMode} isMobile={isMobile} />
+
       
       {/* Transparent Navigation that changes on scroll */}
-      <Navigation 
-        activeSection={activeSection} 
-        scrollToSection={scrollToSection} 
-        navItems={navItems} 
-        darkMode={darkMode} 
-      />
+<Navigation 
+  activeSection={activeSection} 
+  scrollToSection={scrollToSection} 
+  navItems={navItems} 
+  darkMode={darkMode} 
+  isMobile={isMobile}
+  projectsRef={projectsRef}
+/>
       
       {/* Main Content */}
       <main className="flex-grow pt-1">
@@ -1169,264 +1351,268 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
        
 {/* Projects Section with Working Filter Buttons and Show More/Less functionality */}
 <section 
-          ref={projectsRef} 
-          className={`flex items-center px-4 py-12 overflow-hidden relative transition-all duration-500`}
-          style={{
-            minHeight: visibleProjects && visibleProjects.length <= 2 ? '800px' : '1200px',
-            background: darkMode 
-              ? 'radial-gradient(circle at 30% 70%, rgba(30, 64, 175, 0.15), transparent 70%), radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.15), transparent 70%)'
-              : 'radial-gradient(circle at 30% 70%, rgba(219, 234, 254, 0.7), transparent 70%), radial-gradient(circle at 70% 30%, rgba(199, 210, 254, 0.7), transparent 70%)'
-          }}
-        >
-          {/* Background elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className={`absolute -top-40 -right-40 w-144 h-144 rounded-full ${darkMode ? 'bg-blue-900 bg-opacity-40' : 'bg-blue-500 bg-opacity-25'} blur-3xl animate-float-slow`}></div>
-            <div className={`absolute top-1/3 -left-32 w-96 h-96 rounded-full ${darkMode ? 'bg-indigo-900 bg-opacity-40' : 'bg-indigo-500 bg-opacity-25'} blur-3xl animate-float-medium`}></div>
-            <div className={`absolute bottom-1/4 right-1/5 w-112 h-112 rounded-full ${darkMode ? 'bg-cyan-900 bg-opacity-40' : 'bg-cyan-500 bg-opacity-25'} blur-3xl animate-float-fast`}></div>
-            <div className={`absolute top-2/3 left-1/4 w-80 h-80 rounded-full ${darkMode ? 'bg-purple-900 bg-opacity-40' : 'bg-purple-500 bg-opacity-25'} blur-3xl animate-float-medium`}></div>
-            <div className={`absolute top-1/2 right-1/3 w-64 h-64 rounded-full ${darkMode ? 'bg-blue-800 bg-opacity-30' : 'bg-blue-300 bg-opacity-30'} blur-3xl animate-pulse-slow`}></div>
-            <div className={`absolute bottom-1/3 left-1/2 w-48 h-48 rounded-full ${darkMode ? 'bg-indigo-800 bg-opacity-30' : 'bg-indigo-300 bg-opacity-30'} blur-3xl animate-float-slow-reverse`}></div>
-          </div>
-          
-          <div className="w-full max-w-7xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className={`text-4xl font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'} inline-block relative`}>
-                Featured Projects
-                <span className={`absolute -bottom-2 left-0 w-full h-1 ${darkMode ? 'bg-blue-400' : 'bg-blue-600'} rounded`}></span>
-              </h2>
-              <p className={`${darkMode ? 'text-blue-200' : 'text-blue-800'} mt-4 max-w-3xl mx-auto`}>
-                Here are some of my recent mobile and web development projects. Each one demonstrates different skills and technologies.
-              </p>
-              
-              {/* Filter Buttons */}
-              <div className="flex flex-wrap justify-center mt-6 mb-10 gap-3">
-                <div 
-                  onClick={() => setActiveFilter('all')} 
-                  className={`px-6 py-2 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                    activeFilter === 'all' 
-                      ? `${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'} shadow-lg` 
-                      : `${darkMode ? 'bg-gray-800 bg-opacity-70 text-blue-300' : 'bg-white bg-opacity-80 text-blue-600'} backdrop-filter backdrop-blur-sm shadow-md`
-                  }`}
-                >
-                  All
-                </div>
-                <div 
-                  onClick={() => setActiveFilter('mobile')} 
-                  className={`px-6 py-2 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                    activeFilter === 'mobile' 
-                      ? `${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'} shadow-lg` 
-                      : `${darkMode ? 'bg-gray-800 bg-opacity-70 text-blue-300' : 'bg-white bg-opacity-80 text-blue-600'} backdrop-filter backdrop-blur-sm shadow-md`
-                  }`}
-                >
-                  Mobile
-                </div>
-                <div 
-                  onClick={() => setActiveFilter('website')} 
-                  className={`px-6 py-2 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                    activeFilter === 'website' 
-                      ? `${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'} shadow-lg` 
-                      : `${darkMode ? 'bg-gray-800 bg-opacity-70 text-blue-300' : 'bg-white bg-opacity-80 text-blue-600'} backdrop-filter backdrop-blur-sm shadow-md`
-                  }`}
-                >
-                  Website
-                </div>
-                <div 
-                  onClick={() => setActiveFilter('system')} 
-                  className={`px-6 py-2 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                    activeFilter === 'system' 
-                      ? `${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'} shadow-lg` 
-                      : `${darkMode ? 'bg-gray-800 bg-opacity-70 text-blue-300' : 'bg-white bg-opacity-80 text-blue-600'} backdrop-filter backdrop-blur-sm shadow-md`
-                  }`}
-                >
-                  System
-                </div>
-              </div>
-            </div>
-            
-            {/* Projects Container */}
-            <div className="transition-all duration-500" style={{ minHeight: visibleProjects && visibleProjects.length <= 2 ? '600px' : 'auto' }}> 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 lg:gap-24">
-                {/* Map through only the visible projects */}
-                {visibleProjects && visibleProjects.map((project, index) => (
-                  <AnimatedText key={project.id} direction="up" delay={index * 0.5}>
-                    <div 
-                      className={`relative ${darkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white bg-opacity-80'} backdrop-filter backdrop-blur-sm rounded-xl overflow-visible shadow-2xl transform transition-all duration-500 hover:scale-105 hover:shadow-2xl h-full`}
-                      style={{backgroundColor: darkMode ? 'rgba(31, 41, 55, 0.8)' : 'rgba(255, 255, 255, 0.8)'}}
-                    >
-                      <div className="flex flex-col md:flex-row h-full">
-                        {/* Left side content */}
-                        <div className="p-5 w-full md:w-3/4 relative z-10">
-                          <h3 className={`text-2xl font-bold ${darkMode ? 'text-blue-300' : 'text-blue-700'} mb-2`}>
-                            {project.title}
-                          </h3>
-                          <div className="mb-3">
-                            <span className={`inline-block text-sm ${project.tagColor(darkMode)}`}>
-                              {project.tagText}
-                            </span>
-                          </div>
-                          
-                 {/* Features with exactly 2 displayed with consistent height */}
-                 <div className="mb-3">
-                <ul className="list-none">
-                  {project.features.slice(0, 2).map((feature, i) => (
-                    <li key={i} className="flex items-start ">
-                      <span className="text-lg mr-2 mt-1">{feature.icon}</span>
-                      <div className={`${darkMode ? 'text-blue-100' : 'text-blue-900'} min-h-16 flex flex-col justify-center`}>
-                        <p className="mb-1">{feature.text}</p>
-                        {/* Add an empty paragraph if there's only one paragraph to maintain consistent spacing */}
-                        <p className="text-xs opacity-0">Spacer</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-                          
-                         {/* Technology tags with slider */}
-             {/* Technology tags - simplified version */}
-<div className="mt-3 mb-3">
-  <div className="flex flex-wrap gap-2 min-h-20">
-    {project.technologies.slice(0, 6).map((tech, i) => (
-      <span 
-        key={i} 
-        className={`inline-flex items-center gap-2 ${tech.color(darkMode)} text-xs px-3 py-1 rounded-full`}
-      >
-        {tech.iconPath && !isMobile && (
-          <img 
-            src={tech.iconPath} 
-            alt={`${tech.name} icon`} 
-            className="h-4 w-4 object-contain"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = "/icons/default-icon.png";
-            }}
-          />
-        )}
-        {tech.name}
-      </span>
-    ))}
-  </div>
-</div>
-              {/* Button instead of link */}
-              <button 
-                onClick={() => {
-                  setSelectedProject(project);
-                  setIsModalOpen(true);
-                }}
-                className={`
-                  group 
-                  inline-flex items-center A
-                  px-5 py-2 mt-4
-                  rounded-lg 
-                  relative
-                  overflow-hidden
-                  ${darkMode ? 
-                    'bg-blue-200 text-blue-800 hover:bg-blue-900 hover:bg-opacity-40 hover:text-green-200' : 
-                    'bg-blue-500 text-white hover:bg-blue-900 hover:text-yellow-200'
-                  } 
-                  shadow-sm
-                  transition-all duration-300 
-                  transform hover:scale-105 hover:shadow-md
-                `}
-              >
-                {/* Shimmer effect */}
-                <span 
-                  className="absolute top-0 left-0 w-full h-full bg-white opacity-20
-                  transform -translate-x-full skew-x-12
-                  animate-shimmer-continuous
-                  pointer-events-none"
-                ></span>
-                
-                <span className="font-medium relative z-10">View Project</span>
-                <span 
-                  className={`
-                    ml-2 w-5 h-5 rounded-full 
-                    ${darkMode ? 'bg-blue-500' : 'bg-blue-400'} 
-                    flex items-center justify-center 
-                    transition-all duration-300 
-                    transform group-hover:translate-x-2
-                    relative z-10
-                    animate-pulse-subtle
-                  `}
-                >
-                  <svg 
-                    className="w-3 h-3 text-white animate-arrow-move" 
-                    viewBox="0 0 20 20" 
-                    fill="currentColor"
-                  >
-                    <path 
-                      fillRule="evenodd" 
-                      d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" 
-                      clipRule="evenodd" 
-                    />
-                  </svg>
-                </span>
-              </button>
-            </div>
-
-            {/* Phone image */}
-            {!isMobile && (
-              <div className="absolute top-1/2 transform -translate-y-1/2 rotate-6" style={{right: '-60px', width: '40%', zIndex: 30}}>
-                <img 
-                  src={project.imagePath}
-                  alt={project.title}
-                  className="w-full h-auto transform hover:rotate-0 transition-all duration-300"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "/images/default-phone.png";
-                  }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      </AnimatedText>
-    ))}
+  ref={projectsRef} 
+  className={`flex items-center px-4 py-12 overflow-hidden relative transition-all duration-500`}
+  style={{
+    minHeight: visibleProjects && visibleProjects.length <= 2 ? '800px' : '1200px',
+    background: darkMode 
+      ? 'radial-gradient(circle at 30% 70%, rgba(30, 64, 175, 0.15), transparent 70%), radial-gradient(circle at 70% 30%, rgba(79, 70, 229, 0.15), transparent 70%)'
+      : 'radial-gradient(circle at 30% 70%, rgba(219, 234, 254, 0.7), transparent 70%), radial-gradient(circle at 70% 30%, rgba(199, 210, 254, 0.7), transparent 70%)'
+  }}
+>
+  {/* Background elements */}
+  <div className="absolute inset-0 overflow-hidden">
+    <div className={`absolute -top-40 -right-40 w-144 h-144 rounded-full ${darkMode ? 'bg-blue-900 bg-opacity-40' : 'bg-blue-500 bg-opacity-25'} blur-3xl animate-float-slow`}></div>
+    <div className={`absolute top-1/3 -left-32 w-96 h-96 rounded-full ${darkMode ? 'bg-indigo-900 bg-opacity-40' : 'bg-indigo-500 bg-opacity-25'} blur-3xl animate-float-medium`}></div>
+    <div className={`absolute bottom-1/4 right-1/5 w-112 h-112 rounded-full ${darkMode ? 'bg-cyan-900 bg-opacity-40' : 'bg-cyan-500 bg-opacity-25'} blur-3xl animate-float-fast`}></div>
+    <div className={`absolute top-2/3 left-1/4 w-80 h-80 rounded-full ${darkMode ? 'bg-purple-900 bg-opacity-40' : 'bg-purple-500 bg-opacity-25'} blur-3xl animate-float-medium`}></div>
+    <div className={`absolute top-1/2 right-1/3 w-64 h-64 rounded-full ${darkMode ? 'bg-blue-800 bg-opacity-30' : 'bg-blue-300 bg-opacity-30'} blur-3xl animate-pulse-slow`}></div>
+    <div className={`absolute bottom-1/3 left-1/2 w-48 h-48 rounded-full ${darkMode ? 'bg-indigo-800 bg-opacity-30' : 'bg-indigo-300 bg-opacity-30'} blur-3xl animate-float-slow-reverse`}></div>
   </div>
   
-  {/* Show More/Less Button */}
-  {filteredProjects && filteredProjects.length > initialLimit && (
-    <div className="flex justify-center mt-12">
-      <button
-        onClick={toggleShowMore}
-        className={`
-          px-8 py-3 rounded-full 
-          ${darkMode ? 
-            'bg-blue-600 hover:bg-blue-700 text-white' : 
-            'bg-blue-600 hover:bg-blue-700 text-white'
-          }
-          transition-all duration-300 transform hover:scale-105 shadow-lg
-          flex items-center space-x-2
-        `}
-      >
-        <span>{showAll ? 'Show Less' : 'Show More'}</span>
-        {showAll ? (
-          <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
-          </svg>
-        ) : (
-          <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        )}
-      </button>
+  <div className="w-full max-w-7xl mx-auto">
+    <div className="text-center mb-8">
+      <h2 className={`text-4xl font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'} inline-block relative`}>
+        Featured Projects
+        <span className={`absolute -bottom-2 left-0 w-full h-1 ${darkMode ? 'bg-blue-400' : 'bg-blue-600'} rounded`}></span>
+      </h2>
+      <p className={`${darkMode ? 'text-blue-200' : 'text-blue-800'} mt-4 max-w-3xl mx-auto`}>
+        Here are some of my recent mobile and web development projects. Each one demonstrates different skills and technologies.
+      </p>
+      
+      {/* Filter Buttons */}
+    {/* Filter Buttons */}
+<div className="relative mt-10 mb-10">
+  {/* Scroll container */}
+  <div className="overflow-x-auto px-4 scrollbar-hide sm:px-0">
+    <div className="inline-flex gap-3 sm:justify-center whitespace-nowrap pb-2">
+      {['all', 'mobile', 'website', 'system'].map((filter) => (
+        <div
+          key={filter}
+          onClick={() => setActiveFilter(filter)}
+          className={`inline-block px-6 py-2 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+            activeFilter === filter
+              ? `${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'} shadow-lg`
+              : `${darkMode ? 'bg-gray-800 bg-opacity-70 text-blue-300' : 'bg-white bg-opacity-80 text-blue-600'} backdrop-filter backdrop-blur-sm shadow-md`
+          }`}
+        >
+          {filter.charAt(0).toUpperCase() + filter.slice(1)}
+        </div>
+      ))}
     </div>
-  )}
+  </div>
+
+  {/* Left & Right Fade Overlay for Visual Cue */}
+  <div className="pointer-events-none absolute top-0 left-0 h-full w-6 bg-gradient-to-r from-[var(--tw-gradient-from)] to-transparent from-white dark:from-gray-900 z-10" />
+  <div className="pointer-events-none absolute top-0 right-0 h-full w-6 bg-gradient-to-l from-[var(--tw-gradient-from)] to-transparent from-white dark:from-gray-900 z-10" />
 </div>
-          </div>
+</div>
+    
+    {/* Projects Container */}
+    <div className="transition-all duration-500" style={{ minHeight: visibleProjects && visibleProjects.length <= 2 ? '600px' : 'auto' }}> 
+      {/* Updated grid classes for better responsive behavior */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 lg:gap-24">
+        {/* Map through only the visible projects */}
+        {visibleProjects && visibleProjects.map((project, index) => (
+          <AnimatedText key={project.id} direction="up" delay={index * 0.5}>
+            <div 
+              className={`relative ${darkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white bg-opacity-80'} backdrop-filter backdrop-blur-sm rounded-xl overflow-visible shadow-2xl transform transition-all duration-500 hover:scale-105 hover:shadow-2xl h-full`}
+              style={{backgroundColor: darkMode ? 'rgba(31, 41, 55, 0.8)' : 'rgba(255, 255, 255, 0.8)'}}
+            >
+              <div className="flex flex-col md:flex-row h-full">
+                {/* Left side content */}
+                <div className="p-5 w-full md:w-3/4 relative z-10">
+                  <h3 className={`text-2xl font-bold ${darkMode ? 'text-blue-300' : 'text-blue-700'} mb-2`}>
+                    {project.title}
+                  </h3>
+                  <div className="mb-3">
+                    <span className={`inline-block text-sm ${project.tagColor(darkMode)}`}>
+                      {project.tagText}
+                    </span>
+                  </div>
+                  
+                  {/* Features with exactly 2 displayed with consistent height */}
+                  <div className="mb-3">
+                    <ul className="list-none">
+                      {project.features.slice(0, 2).map((feature, i) => (
+                        <li key={i} className="flex items-start ">
+                          <span className="text-lg mr-2 mt-1">{feature.icon}</span>
+                          <div className={`${darkMode ? 'text-blue-100' : 'text-blue-900'} min-h-16 flex flex-col justify-center`}>
+                            <p className="mb-1">{feature.text}</p>
+                            {/* Add an empty paragraph if there's only one paragraph to maintain consistent spacing */}
+                            <p className="text-xs opacity-0">Spacer</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-          {/* Project Modal */}
-          {selectedProject && (
-            <ProjectModal 
-              project={selectedProject} 
-              isOpen={isModalOpen} 
-              onClose={() => setIsModalOpen(false)} 
-              darkMode={darkMode} 
-            />
-          )}
+                  {/* Technology tags - simplified version */}
+                  <div className="mt-3 mb-3">
+                    <div className="flex flex-wrap gap-2 min-h-20">
+                      {project.technologies.slice(0, 6).map((tech, i) => (
+                        <span 
+                          key={i} 
+                          className={`inline-flex items-center gap-2 ${tech.color(darkMode)} text-xs px-3 py-1 rounded-full`}
+                        >
+                          {tech.iconPath && !isMobile && (
+                            <img 
+                              src={tech.iconPath} 
+                              alt={`${tech.name} icon`} 
+                              className="h-4 w-4 object-contain"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "/icons/default-icon.png";
+                              }}
+                            />
+                          )}
+                          {tech.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Button instead of link */}
+                  <button 
+                    onClick={() => {
+                      setSelectedProject(project);
+                      setIsModalOpen(true);
+                    }}
+                    className={`
+                      group 
+                      inline-flex items-center 
+                      px-5 py-2 mt-4
+                      rounded-lg 
+                      relative
+                      overflow-hidden
+                      ${darkMode ? 
+                        'bg-blue-200 text-blue-800 hover:bg-blue-900 hover:bg-opacity-40 hover:text-green-200' : 
+                        'bg-blue-500 text-white hover:bg-blue-900 hover:text-yellow-200'
+                      } 
+                      shadow-sm
+                      transition-all duration-300 
+                      transform hover:scale-105 hover:shadow-md
+                    `}
+                  >
+                    {/* Shimmer effect */}
+                    <span 
+                      className="absolute top-0 left-0 w-full h-full bg-white opacity-20
+                      transform -translate-x-full skew-x-12
+                      animate-shimmer-continuous
+                      pointer-events-none"
+                    ></span>
+                    
+                    <span className="font-medium relative z-10">View Project</span>
+                    <span 
+                      className={`
+                        ml-2 w-5 h-5 rounded-full 
+                        ${darkMode ? 'bg-blue-500' : 'bg-blue-400'} 
+                        flex items-center justify-center 
+                        transition-all duration-300 
+                        transform group-hover:translate-x-2
+                        relative z-10
+                        animate-pulse-subtle
+                      `}
+                    >
+                      <svg 
+                        className="w-3 h-3 text-white animate-arrow-move" 
+                        viewBox="0 0 20 20" 
+                        fill="currentColor"
+                      >
+                        <path 
+                          fillRule="evenodd" 
+                          d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" 
+                          clipRule="evenodd" 
+                        />
+                      </svg>
+                    </span>
+                  </button>
+                </div>
 
-        
-        </section>
+                {/* Image - Show on tablet and above (md+), hide on mobile */}
+{!isMobile && (
+  <div
+    className="absolute top-1/2 transform -translate-y-1/2 rotate-6"
+    style={{
+      ...({
+        "/images/iskoyanlaptop1.png": {
+          right: window.innerWidth < 1024 ? "-290px" : "-320px",
+          width: window.innerWidth < 1024 ? "75%" : "105%",
+        },
+        "/images/attendancefs1.png": {
+          right: window.innerWidth < 1024 ? "-290px" : "-320px",
+          width: window.innerWidth < 1024 ? "75%" : "105%",
+        },
+        "/images/another-case.png": {
+          right: window.innerWidth < 1024 ? "-120px" : "-200px",
+          width: window.innerWidth < 1024 ? "350px" : "500px",
+          zIndex: 20,
+        },
+      }[project.imagePath] || {
+        right: window.innerWidth < 1024 ? "-350px" : "-350px",
+        width: window.innerWidth < 1024 ? "100%" : "135%",
+        zIndex: 30,
+      }),
+    }}
+  >
+    <img
+      src={project.imagePath}
+      alt={project.title}
+      className="h-auto transform hover:rotate-0 transition-all duration-300"
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.src = "/images/default-phone.png";
+      }}
+    />
+  </div>
+)}
+              </div>
+            </div>
+          </AnimatedText>
+        ))}
+      </div>
+      
+      {/* Show More/Less Button */}
+      {filteredProjects && filteredProjects.length > initialLimit && (
+        <div className="flex justify-center mt-12">
+          <button
+            onClick={toggleShowMore}
+            className={`
+              px-8 py-3 rounded-full 
+              ${darkMode ? 
+                'bg-blue-600 hover:bg-blue-700 text-white' : 
+                'bg-blue-600 hover:bg-blue-700 text-white'
+              }
+              transition-all duration-300 transform hover:scale-105 shadow-lg
+              flex items-center space-x-2
+            `}
+          >
+            <span>{showAll ? 'Show Less' : 'Show More'}</span>
+            {showAll ? (
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            )}
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+
+  {/* Project Modal */}
+  {selectedProject && (
+    <ProjectModal 
+      project={selectedProject} 
+      isOpen={isModalOpen} 
+      onClose={() => setIsModalOpen(false)} 
+      darkMode={darkMode} 
+    />
+  )}
+</section>
          {/* About Section */}
 
 {/* About Section with Resume Data */}
@@ -2909,6 +3095,13 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
             opacity: 0.95;
           }
         }
+          .scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;     /* Firefox */
+}
           
         .breathing-title {
           animation: gentle-breathing 3s ease-in-out infinite;
