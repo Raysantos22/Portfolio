@@ -830,7 +830,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
         },
         {
           icon: "💡",
-          text: "Integration with wearable devices and health APIs "
+          text: "Integration with wearable devices and health APIs asdsadsadsadsadasasdsadsadasdsadsadsazasda"
         },
         {
           icon: "🔔",
@@ -906,7 +906,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
         },
         {
           icon: "💡",
-          text: "Integration with wearable devices and health APIs "
+          text: "Integration with wearable devices and health APIs asdsadsadsadsadasasdsadsadasdsadsadsazasda"
         },
         {
           icon: "🔔",
@@ -1382,29 +1382,49 @@ useEffect(() => {
       
       {/* Filter Buttons */}
     {/* Filter Buttons */}
-<div className="relative mt-10 mb-10">
-  {/* Scroll container */}
-  <div className="overflow-x-auto px-4 scrollbar-hide sm:px-0">
-    <div className="inline-flex gap-3 sm:justify-center whitespace-nowrap pb-2">
-      {['all', 'mobile', 'website', 'system'].map((filter) => (
-        <div
-          key={filter}
-          onClick={() => setActiveFilter(filter)}
-          className={`inline-block px-6 py-2 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-            activeFilter === filter
-              ? `${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'} shadow-lg`
-              : `${darkMode ? 'bg-gray-800 bg-opacity-70 text-blue-300' : 'bg-white bg-opacity-80 text-blue-600'} backdrop-filter backdrop-blur-sm shadow-md`
-          }`}
-        >
-          {filter.charAt(0).toUpperCase() + filter.slice(1)}
-        </div>
-      ))}
+<div className="mt-10 mb-10 overflow-x-auto whitespace-nowrap px-2 sm:px-0">
+  <div className="inline-flex gap-3 sm:justify-center">
+    <div 
+      onClick={() => setActiveFilter('all')} 
+      className={`inline-block px-6 py-2 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+        activeFilter === 'all' 
+          ? `${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'} shadow-lg` 
+          : `${darkMode ? 'bg-gray-800 bg-opacity-70 text-blue-300' : 'bg-white bg-opacity-80 text-blue-600'} backdrop-filter backdrop-blur-sm shadow-md`
+      }`}
+    >
+      All
+    </div>
+    <div 
+      onClick={() => setActiveFilter('mobile')} 
+      className={`inline-block px-6 py-2 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+        activeFilter === 'mobile' 
+          ? `${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'} shadow-lg` 
+          : `${darkMode ? 'bg-gray-800 bg-opacity-70 text-blue-300' : 'bg-white bg-opacity-80 text-blue-600'} backdrop-filter backdrop-blur-sm shadow-md`
+      }`}
+    >
+      Mobile
+    </div>
+    <div 
+      onClick={() => setActiveFilter('website')} 
+      className={`inline-block px-6 py-2 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+        activeFilter === 'website' 
+          ? `${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'} shadow-lg` 
+          : `${darkMode ? 'bg-gray-800 bg-opacity-70 text-blue-300' : 'bg-white bg-opacity-80 text-blue-600'} backdrop-filter backdrop-blur-sm shadow-md`
+      }`}
+    >
+      Website
+    </div>
+    <div 
+      onClick={() => setActiveFilter('system')} 
+      className={`inline-block px-6 py-2 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+        activeFilter === 'system' 
+          ? `${darkMode ? 'bg-blue-600 text-white' : 'bg-blue-600 text-white'} shadow-lg` 
+          : `${darkMode ? 'bg-gray-800 bg-opacity-70 text-blue-300' : 'bg-white bg-opacity-80 text-blue-600'} backdrop-filter backdrop-blur-sm shadow-md`
+      }`}
+    >
+      System
     </div>
   </div>
-
-  {/* Left & Right Fade Overlay for Visual Cue */}
-  <div className="pointer-events-none absolute top-0 left-0 h-full w-6 bg-gradient-to-r from-[var(--tw-gradient-from)] to-transparent from-white dark:from-gray-900 z-10" />
-  <div className="pointer-events-none absolute top-0 right-0 h-full w-6 bg-gradient-to-l from-[var(--tw-gradient-from)] to-transparent from-white dark:from-gray-900 z-10" />
 </div>
 </div>
     
@@ -3095,13 +3115,6 @@ useEffect(() => {
             opacity: 0.95;
           }
         }
-          .scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE/Edge */
-  scrollbar-width: none;     /* Firefox */
-}
           
         .breathing-title {
           animation: gentle-breathing 3s ease-in-out infinite;
