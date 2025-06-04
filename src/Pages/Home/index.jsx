@@ -1,24 +1,24 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 
-// Preloader component with musical animation
+// Preloader component with musical animation - Mobile Optimized
 const Preloader = ({ setLoading, darkMode }) => {
   useEffect(() => {
     // Simulate loading time
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 4000);
     return () => clearTimeout(timer);
   }, [setLoading]);
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
-      <div className="text-center">
-        {/* Musical Notes Animation - Big and Playful */}
-        <div className="flex justify-center space-x-6 mb-8">
+    <div className={`fixed inset-0 z-[9999] flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
+      <div className="text-center px-4 w-full max-w-sm">
+        {/* Musical Notes Animation - Mobile Responsive */}
+        <div className="flex justify-center space-x-3 sm:space-x-6 mb-6 sm:mb-8">
           {['♪', '♫', '♪', '♬', '♪'].map((note, i) => (
             <div
               key={i}
-              className="text-8xl animate-bounce text-black transform hover:scale-110 transition-transform"
+              className="text-4xl sm:text-6xl md:text-7xl animate-bounce text-black transform hover:scale-110 transition-transform"
               style={{
                 animationDelay: `${i * 0.2}s`,
                 animationDuration: '0.6s'
@@ -29,30 +29,20 @@ const Preloader = ({ setLoading, darkMode }) => {
           ))}
         </div>
 
-        {/* Sound Bars - Bigger */}
-        <div className="flex justify-center space-x-2 mb-6">
-          {[...Array(9)].map((_, i) => (
+        {/* Sound Bars - Mobile Responsive */}
+        <div className="flex justify-center space-x-1 sm:space-x-2 mb-4 sm:mb-6">
+          {[...Array(7)].map((_, i) => (
             <div
               key={i}
-              className="w-3 rounded-full animate-pulse bg-black"
+              className="w-2 sm:w-3 rounded-full animate-pulse bg-black"
               style={{
-                height: `${25 + Math.random() * 50}px`,
+                height: `${20 + Math.random() * 35}px`,
                 animationDelay: `${i * 0.1}s`,
                 animationDuration: '0.8s'
               }}
             ></div>
           ))}
         </div>
-
-        {/* Loading Bar */}
-        {/* <div className="w-64 h-3 bg-gray-300 rounded-full mx-auto mt-4 overflow-hidden">
-          <div className="h-full bg-black w-full animate-loading-bar"></div>
-        </div>
-         */}
-        {/* Loading Text */}
-        {/* <div className="mt-6 text-xl font-bold text-black">
-          🎵 Loading Music...
-        </div> */}
       </div>
     </div>
   );
