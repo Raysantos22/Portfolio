@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 
-// Preloader component
+// Preloader component with musical animation
 const Preloader = ({ setLoading, darkMode }) => {
   useEffect(() => {
     // Simulate loading time
@@ -13,12 +13,46 @@ const Preloader = ({ setLoading, darkMode }) => {
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
       <div className="text-center">
-        <div className={`w-24 h-24 ${darkMode ? 'bg-blue-600' : 'bg-blue-500'} rounded-full mx-auto mb-5 flex items-center justify-center animate-pulse`}>
-          <span className="text-white text-4xl font-bold">R</span>
+        {/* Musical Notes Animation - Big and Playful */}
+        <div className="flex justify-center space-x-6 mb-8">
+          {['♪', '♫', '♪', '♬', '♪'].map((note, i) => (
+            <div
+              key={i}
+              className="text-8xl animate-bounce text-black transform hover:scale-110 transition-transform"
+              style={{
+                animationDelay: `${i * 0.2}s`,
+                animationDuration: '0.6s'
+              }}
+            >
+              {note}
+            </div>
+          ))}
         </div>
-        <div className="w-48 h-2 bg-gray-700 rounded-full mx-auto mt-4 overflow-hidden">
-          <div className="h-full bg-blue-500 w-full animate-loading-bar"></div>
+
+        {/* Sound Bars - Bigger */}
+        <div className="flex justify-center space-x-2 mb-6">
+          {[...Array(9)].map((_, i) => (
+            <div
+              key={i}
+              className="w-3 rounded-full animate-pulse bg-black"
+              style={{
+                height: `${25 + Math.random() * 50}px`,
+                animationDelay: `${i * 0.1}s`,
+                animationDuration: '0.8s'
+              }}
+            ></div>
+          ))}
         </div>
+
+        {/* Loading Bar */}
+        {/* <div className="w-64 h-3 bg-gray-300 rounded-full mx-auto mt-4 overflow-hidden">
+          <div className="h-full bg-black w-full animate-loading-bar"></div>
+        </div>
+         */}
+        {/* Loading Text */}
+        {/* <div className="mt-6 text-xl font-bold text-black">
+          🎵 Loading Music...
+        </div> */}
       </div>
     </div>
   );
@@ -339,6 +373,11 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
     alt: "Default screenshot"
   };
   
+  // Helper function to check if file is a video
+  const isVideo = (src) => {
+    return src && (src.endsWith('.mp4') || src.endsWith('.webm') || src.endsWith('.ogg') || src.endsWith('.mov'));
+  };
+  
   // Function to go to next slide
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev === screenshots.length - 1 ? 0 : prev + 1));
@@ -386,6 +425,10 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
     }
   }, [isOpen, project]);
   
+  // Get current media source
+  const currentMediaSrc = screenshots.length > 0 ? screenshots[currentSlide].src : defaultScreenshot.src;
+  const currentMediaAlt = screenshots.length > 0 ? (screenshots[currentSlide].alt || `Media ${currentSlide + 1}`) : defaultScreenshot.alt;
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-10">
       <div 
@@ -416,124 +459,149 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
         </button>
         
         <div className="flex flex-col md:flex-row">
-  {/* LEFT SIDE: Screenshot Slideshow */}
-  <div className="w-full md:w-1/2 h-64 md:h-auto relative overflow-hidden">
-    <div className="h-full relative">
-      {/* Main Screenshot */}
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="md:p-6 w-full h-full flex items-center justify-center">
-          <img 
-            src={screenshots.length > 0 ? screenshots[currentSlide].src : defaultScreenshot.src} 
-            alt={screenshots.length > 0 ? (screenshots[currentSlide].alt || `Screenshot ${currentSlide + 1}`) : defaultScreenshot.alt} 
-            className="w-full h-full object-contain"
-            style={{
-              maxHeight: '80%',
-              maxWidth: '80%'
-            }}
-            loading="lazy"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = "/images/default-screenshot.png";
-            }}
-          />
-        </div>
-      </div>
-      
-      {/* Gradient overlay */}
-      <div className={`absolute inset-0 ${
-        darkMode 
-          ? 'bg-gradient-to-r from-gray-900 via-transparent to-transparent opacity-70' 
-          : 'bg-gradient-to-r from-white via-transparent to-transparent opacity-50'
-      }`}></div>
-      
-      {/* Tag badge */}
-      {/* <div className="absolute top-4 left-4">
-        <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${project.tagColor(darkMode)}`}>
-          {project.tagText}
-        </span>
-      </div> */}
-      
-      {/* Navigation controls - only show if there are multiple screenshots */}
-      {screenshots.length > 1 && (
-        <>
-          {/* Previous button */}
-          <button 
-            onClick={prevSlide}
-            className={`absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full ${
-              darkMode ? 'bg-gray-900 bg-opacity-70 hover:bg-gray-800' : 'bg-white bg-opacity-70 hover:bg-gray-100'
-            } flex items-center justify-center transition-all duration-300 hover:scale-110`}
-            aria-label="Previous slide"
-          >
-            <svg 
-              className={`w-5 h-5 ${darkMode ? 'text-white' : 'text-gray-800'}`} 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          
-          {/* Next button */}
-          <button 
-            onClick={nextSlide}
-            className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full ${
-              darkMode ? 'bg-gray-900 bg-opacity-70 hover:bg-gray-800' : 'bg-white bg-opacity-70 hover:bg-gray-100'
-            } flex items-center justify-center transition-all duration-300 hover:scale-110`}
-            aria-label="Next slide"
-          >
-            <svg 
-              className={`w-5 h-5 ${darkMode ? 'text-white' : 'text-gray-800'}`} 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-          
-          {/* Slide counter */}
-          <div className={`absolute bottom-4 right-4 px-2 py-1 rounded-md text-xs ${
-            darkMode ? 'bg-gray-800 bg-opacity-70 text-white' : 'bg-white bg-opacity-70 text-gray-800'
-          }`}>
-            {currentSlide + 1} / {screenshots.length}
+          {/* LEFT SIDE: Screenshot/Video Slideshow */}
+          <div className="w-full md:w-1/2 h-64 md:h-auto relative overflow-hidden">
+            <div className="h-full relative">
+              {/* Main Media Display */}
+              <div className="w-full h-full flex items-center justify-center relative z-20">
+                <div className="md:p-6 w-full h-full flex items-center justify-center">
+                  {isVideo(currentMediaSrc) ? (
+                    <video 
+                      controls
+                      preload="metadata"
+                      className="w-full h-full object-contain relative z-30"
+                      style={{
+                        maxHeight: '80%',
+                        maxWidth: '80%',
+                        pointerEvents: 'auto'
+                      }}
+                      onError={(e) => {
+                        console.error('Video failed to load:', currentMediaSrc);
+                      }}
+                      onLoadStart={() => {
+                        console.log('Video loading started:', currentMediaSrc);
+                      }}
+                    >
+                      <source src={currentMediaSrc} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <img 
+                      src={currentMediaSrc} 
+                      alt={currentMediaAlt} 
+                      className="w-full h-full object-contain"
+                      style={{
+                        maxHeight: '80%',
+                        maxWidth: '80%'
+                      }}
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/images/default-screenshot.png";
+                      }}
+                    />
+                  )}
+                </div>
+              </div>
+              
+              {/* Gradient overlay - only for images, not videos */}
+              {!isVideo(currentMediaSrc) && (
+                <div className={`absolute inset-0 ${
+                  darkMode 
+                    ? 'bg-gradient-to-r from-gray-900 via-transparent to-transparent opacity-70' 
+                    : 'bg-gradient-to-r from-white via-transparent to-transparent opacity-50'
+                } z-10`}></div>
+              )}
+              
+              {/* Navigation controls - only show if there are multiple screenshots */}
+              {screenshots.length > 1 && (
+                <>
+                  {/* Previous button */}
+                  <button 
+                    onClick={prevSlide}
+                    className={`absolute left-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full ${
+                      darkMode ? 'bg-gray-900 bg-opacity-70 hover:bg-gray-800' : 'bg-white bg-opacity-70 hover:bg-gray-100'
+                    } flex items-center justify-center transition-all duration-300 hover:scale-110 z-40`}
+                    aria-label="Previous slide"
+                  >
+                    <svg 
+                      className={`w-5 h-5 ${darkMode ? 'text-white' : 'text-gray-800'}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  
+                  {/* Next button */}
+                  <button 
+                    onClick={nextSlide}
+                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full ${
+                      darkMode ? 'bg-gray-900 bg-opacity-70 hover:bg-gray-800' : 'bg-white bg-opacity-70 hover:bg-gray-100'
+                    } flex items-center justify-center transition-all duration-300 hover:scale-110 z-40`}
+                    aria-label="Next slide"
+                  >
+                    <svg 
+                      className={`w-5 h-5 ${darkMode ? 'text-white' : 'text-gray-800'}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                  
+                  {/* Slide counter */}
+                  <div className={`absolute bottom-4 right-4 px-2 py-1 rounded-md text-xs z-40 ${
+                    darkMode ? 'bg-gray-800 bg-opacity-70 text-white' : 'bg-white bg-opacity-70 text-gray-800'
+                  }`}>
+                    {currentSlide + 1} / {screenshots.length}
+                  </div>
+                </>
+              )}
+              
+              {/* Thumbnail strip at bottom */}
+              {screenshots.length > 1 && (
+                <div className={`absolute bottom-0 left-0 right-0 flex justify-center bg-opacity-70 z-40 ${
+                  darkMode ? 'bg-gray-900' : 'bg-gray-100'
+                } py-1 px-2 overflow-x-auto`}>
+                  <div className="flex space-x-1">
+                    {screenshots.map((screenshot, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentSlide(index)}
+                        className={`h-8 w-8 rounded-sm overflow-hidden ${
+                          currentSlide === index 
+                            ? 'ring-2 ring-blue-500 opacity-100 scale-110' 
+                            : 'opacity-70 hover:opacity-100'
+                        } transition-all duration-300 relative`}
+                      >
+                        {isVideo(screenshot.src) ? (
+                          <div className="w-full h-full bg-gray-600 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        ) : (
+                          <img
+                            src={screenshot.src}
+                            alt={`Thumbnail ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/images/default-screenshot.png";
+                            }}
+                          />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </>
-      )}
-      
-      {/* Thumbnail strip at bottom */}
-      {screenshots.length > 1 && (
-        <div className={`absolute bottom-0 left-0 right-0 flex justify-center bg-opacity-70 ${
-          darkMode ? 'bg-gray-900' : 'bg-gray-100'
-        } py-1 px-2 overflow-x-auto`}>
-          <div className="flex space-x-1">
-            {screenshots.map((screenshot, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`h-8 w-8 rounded-sm overflow-hidden ${
-                  currentSlide === index 
-                    ? 'ring-2 ring-blue-500 opacity-100 scale-110' 
-                    : 'opacity-70 hover:opacity-100'
-                } transition-all duration-300`}
-              >
-                <img
-                  src={screenshot.src}
-                  alt={`Thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "/images/default-screenshot.png";
-                  }}
-                />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
           
           {/* RIGHT SIDE: Project Details */}
           <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col">
@@ -558,9 +626,10 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
               {project.features && project.features.map((feature, i) => (
                 <li key={i} className="flex items-start">
                   <span className="text-lg mr-2">{feature.icon}</span>
-                  <span className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
-                    {feature.text}
-                  </span>
+                  <div className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
+                    <strong className="block">{feature.title}</strong>
+                    <span>{feature.description}</span>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -639,44 +708,239 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
                   <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                 </svg>
               </a>
-              </div>
             </div>
           </div>
-          </div>
+        </div>
       </div>
-    );
-  };
-  
+    </div>
+  );
+};
   const projectsData = [
-    {
-      id: 1,
-      title: "Mobile-Based Real-Time Skin Disease Detection with YOLO v5",
-      tagText: "🏆 Winner of TSU 2024 Best Thesis Award in BSCS",
-      tagColor: darkMode => darkMode ? "text-yellow-300" : "text-yellow-600",
-      type: "mobile",
-      imagePath: "/images/snakedetection.png",
-      projectLink: "/projects/skin-disease-detection",
-      liveUrl: "https://example.com/demo/skin-disease-app",
-      repoUrl: "https://github.com/yourusername/skin-disease-detection",
-      description: "An Android mobile application that uses computer vision and deep learning to detect and classify 12 common skin conditions in real-time. The app provides instant diagnosis with 95.20% accuracy, helping users identify potential skin issues and find appropriate treatments.",
-      features: [
-        {
-          icon: "🚀",
-          text: "Developed using Kotlin, TensorFlow, PyTorch, and OpenCV"
+     {
+     
+            id: 1,
+            title: "ECPOS - In House Point of Sale System (Mobile)",
+            tagText: "In-house POS system for BW Super Bakeshop",
+            tagColor: darkMode => darkMode ? "text-blue-300" : "text-blue-600",
+            type: "mobile",
+            imagePath: "/images/ecpostablet.png",
+            projectLink: "https://eljin.org/",
+            liveUrl: "https://eljin.org/",
+            repoUrl: "https://github.com/Raysantos22/ECPOS",
+            description: "A fully integrated, in-house POS system developed for BW Super Bakeshop, deployed across 21 store locations. ECPOS manages inventory, sales, customer engagement, employee attendance, and reporting. With real-time cloud synchronization and intuitive dashboards, it streamlines daily operations and improves decision-making across all branches.",
+           features: [
+                  {
+                    icon: "💼",
+                    title: "Multi-Branch Deployment",
+                    description: "Seamlessly operates across 21 branches with support for multi-terminal usage per store."
+                  },
+
+                  {
+                    icon: "📈",
+                    title: "Sales & Financial Reporting",
+                    description: "Generates comprehensive sales reports, discount analysis, and financial summaries with visual dashboards for easy business insights."
+                  },
+                  {
+                    icon: "👥",
+                    title: "Customer & Loyalty Management",
+                    description: "Built-in CRM with loyalty point systems and member tracking to boost customer retention and personalized service."
+                  },
+                  {
+                    icon: "⏱️",
+                    title: "Employee Attendance & Time Tracking",
+                    description: "Monitors employee check-ins/outs, records working hours, and manages shift schedules for HR efficiency."
+                  },
+                    {
+                    icon: "📦",
+                    title: "Advanced Inventory Management",
+                    description: "Handles batch counting, inventory movements, and real-time stock level tracking with stock transfer support between branches."
+                  },
+                  {
+                    icon: "🛒",
+                    title: "Flexible Cashier Module",
+                    description: "Designed for fast-paced retail environments with multi-window support, change fund management, and customizable item carts."
+                  },
+                  {
+                    icon: "🧾",
+                    title: "Order & Expense Management",
+                    description: "Supports order processing, store-level expense recording, and request handling, ensuring tight cost control."
+                  },
+                  {
+                    icon: "⚙️",
+                    title: "Administrative Settings & Control Panel",
+                    description: "Includes printer configuration, POS info setup, and emergency sync tools for store admins and IT support."
+                  }
+                ]
+                ,
+      technologies: [
+        { 
+          name: "Kotlin",
+          iconPath: "/images/kotlin.png", 
+          color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800" 
         },
-        {
-          icon: "📊",
-          text: "Achieved 95.20% accuracy in detecting 12 common skin conditions"
+        { 
+          name: "Node.js",
+          iconPath: "/images/node.png", 
+          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
         },
-        {
-          icon: "📱",
-          text: "Real-time disease detection with camera integration"
+        
+        { 
+          name: "Laravel API",
+          iconPath: "/images/laravel.png", 
+          color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800" 
         },
-        {
-          icon: "🔍",
-          text: "Comprehensive information database for identified conditions"
+     
+           { 
+          name: "Room Db",
+          iconPath: "/images/roomdb1.jpg", 
+          color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800" 
+        },
+        { 
+          name: "Android Studio",
+          iconPath: "/images/androidstudio.png", 
+          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
         }
       ],
+      screenshots: [
+           {
+          src: "/images/e1.png",
+        },
+        {
+          src: "/images/e2.png",
+        },
+             {
+          src: "/images/e3.png",
+        },
+        {
+          src: "/images/e4.png",
+        },
+             {
+          src: "/images/e5.png",
+        },
+        {
+          src: "/images/e6.png",
+        },
+             {
+          src: "/images/e7.png",
+        },
+        {
+          src: "/images/e8.png",
+        },
+             {
+          src: "/images/e9.png",
+        },
+        {
+          src: "/images/e10.png",
+        },
+             {
+          src: "/images/e11.png",
+        },
+        {
+          src: "/images/e12.png",
+        },
+             {
+          src: "/images/e13.png",
+        },
+        {
+          src: "/images/e14.png",
+        },
+             {
+          src: "/images/e15.png",
+        },
+        {
+          src: "/images/e16.png",
+        },
+             {
+          src: "/images/e17.png",
+        },
+        {
+          src: "/images/e18.png",
+        },
+             {
+          src: "/images/e19.png",
+        },
+        {
+          src: "/images/e20.png",
+        },
+             {
+          src: "/images/e21.png",
+        },
+        {
+          src: "/images/e22.png",
+        },
+             {
+          src: "/images/e23.png",
+        },
+        {
+          src: "/images/e24.png",
+        },
+             {
+          src: "/images/e25.png",
+        },
+        {
+          src: "/images/e26.jpg",
+        },
+             {
+          src: "/images/e27.jpg",
+        },
+        {
+          src: "/images/e28.jpg",
+        },
+             {
+          src: "/images/e29.jpg",
+        },
+        {
+          src: "/images/e30.jpg",
+        },
+             {
+          src: "/images/e31.jpg",
+        },
+        {
+          src: "/images/e32.jpg",
+        }
+      ]
+    },
+    {
+      
+   
+  id: 2,
+  title: "Mobile-Based Real-Time Skin Disease Detection with YOLO v5",
+  tagText: "🏆 Winner of TSU 2024 Best Thesis Award in BSCS",
+  tagColor: darkMode => darkMode ? "text-yellow-300" : "text-yellow-600",
+  type: "mobile",
+  imagePath: "/images/diseasesscan.png",
+  projectLink: "/projects/skin-disease-detection",
+  liveUrl: "https://github.com/Raysantos22",
+  repoUrl: "https://github.com/Raysantos22",
+  description: "Developed an offline mobile app using Java/Kotlin for real-time skin disease detection with 95.20% accuracy. Utilizes YOLO v5 (TensorFlow/PyTorch) and OpenCV to identify 12 common skin conditions, aiding early diagnosis and treatment even without internet access.",
+  features: [
+    {
+      icon: "🤖",
+      title: "YOLO v5 Detection Model",
+      description: "Integrated YOLO v5 with TensorFlow/PyTorch for fast and accurate object detection of skin conditions."
+    },
+    {
+      icon: "📱",
+      title: "Offline Mobile App",
+      description: "Built using Java/Kotlin for Android, the app works fully offline, ideal for remote areas with limited connectivity."
+    },
+    {
+      icon: "📊",
+      title: "High Diagnostic Accuracy",
+      description: "Achieved 95.20% accuracy, 94.80% precision, 96.10% specificity, and 95.50% recall across 12 diseases."
+    },
+    {
+      icon: "🩺",
+      title: "Real-Time Analysis",
+      description: "Instant detection through live camera feed using OpenCV-powered preprocessing and YOLO-based inference."
+    },
+    {
+      icon: "📚",
+      title: "Comprehensive Condition Coverage",
+      description: "Covers acne, bullous pemphigoid, herpes zoster, hives, impetigo, melanonychia, monkeypox, psoriasis, ringworm, warts, cutaneous larva migrans, and Raynaud's phenomenon."
+    }
+  ],
+
       technologies: [
         { 
           name: "Kotlin",
@@ -698,15 +962,10 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
             iconPath: "/images/androidstudio.png",
             color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800" 
         },
-         { 
-            name: "Android Studio",
-            iconPath: "/images/androidstudio.png",
-            color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800" 
-        },
-         { 
-            name: "Android Studio",
-            iconPath: "/images/androidstudio.png",
-            color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800" 
+          {
+          name: "YOLO v5",
+          iconPath: "/images/yolo.png",
+          color: darkMode => darkMode ? "bg-red-900 bg-opacity-30 text-red-200" : "bg-red-100 text-red-800"
         },
         { 
           name: "Kaggle",
@@ -714,328 +973,1065 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
           color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800" 
         }
       ],
-      screenshots: [
+     screenshots: [
         {
-          src: "/images/snake5.jpg",
-          alt: "Disease detection screen"
+          src: "/images/m1.jpg",
         },
         {
-          src: "/images/css3.png",
-          alt: "Results dashboard"
+          src: "/images/m2.jpg",
+        },
+         {
+          src: "/images/m3.jpg",
         },
         {
-          src: "/images/docker.png",
-          alt: "Treatment recommendations"
+          src: "/images/m4.jpg",
+        },
+         {
+          src: "/images/m5.jpg",
         },
         {
-          src: "/images/html.png",
-          alt: "Disease detection screen"
+          src: "/images/m6.jpg",
         },
         {
-          src: "/images/java.png",
-          alt: "Results dashboard"
+          src: "/images/m7.mp4",
         },
         {
-          src: "/images/node.png",
-          alt: "Treatment recommendations"
+          src: "/images/m1.gif",
+        },
+         {
+          src: "/images/m8.jpg",
+        }
+      ]
+    
+    },
+         {
+    id: 5,
+  title: "Vegetable Health Monitoring System with Object Detection Using YOLOv11",
+  tagText: "🌿 Real-time mobile app for tomato pest and disease detection",
+  tagColor: darkMode => darkMode ? "text-green-300" : "text-green-600",
+  type: "mobile",
+  imagePath: "/images/plantmonitoring1.png",
+  projectLink: "/projects/vegetable-monitoring",
+  liveUrl: "https://github.com/Raysantos22",
+  repoUrl: "https://github.com/Raysantos22",
+  description: "A mobile-based application developed to help new gardeners monitor tomato plant health using real-time image processing. Built with YOLOv11 for object detection, it identifies pests and diseases, provides severity assessments, and suggests treatment recommendations for improved crop quality.",
+  features: [
+    {
+      icon: "📷",
+      title: "Real-Time Object Detection",
+      description: "Utilizes YOLOv11 to identify visible signs of pests and diseases on tomato plants using the device camera."
+    },
+    {
+      icon: "📅",
+      title: "Daily Monitoring",
+      description: "Allows users to regularly track the condition of their vegetables with logs and visual comparisons."
+    },
+    {
+      icon: "📊",
+      title: "Severity Assessment",
+      description: "Estimates the seriousness of detected conditions to assist with timely and appropriate action."
+    },
+    {
+      icon: "🐛",
+      title: "Pest and Disease Identification",
+      description: "Detects and classifies common tomato plant issues with precision using a trained detection model."
+    },
+    {
+      icon: "🧪",
+      title: "Treatment Recommendations",
+      description: "Provides suggested remedies or actions based on identified issues to help users manage their crops."
+    }
+  ],
+  technologies: [
+    {
+      name: "Kotlin",
+      iconPath: "/images/kotlin.png",
+      color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800"
+    },
+     {
+      name: "Pytorch",
+      iconPath: "/images/pytorch.png",
+      color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800"
+    },
+    {
+      name: "Tensorflow",
+      iconPath: "/images/tensorflow.png",
+      color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800"
+    },
+    {
+      name: "Kaggle",
+      iconPath: "/images/kaggle.png",
+      color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800"
+    },
+        {
+      name: "YOLOv11",
+      iconPath: "/images/yolo.png",
+      color: darkMode => darkMode ? "bg-red-900 bg-opacity-30 text-red-200" : "bg-red-100 text-red-800"
+    },
+
+    {
+      name: "Android Studio ",
+      iconPath: "/images/androidstudio.png",
+      color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800"
+    }
+  ],
+     screenshots: [
+        {
+          src: "/images/p1.jpg",
+        },
+        {
+          src: "/images/p2.jpg",
+        },
+         {
+          src: "/images/p3.jpg",
+        },
+        {
+          src: "/images/p4.jpg",
+        },
+         {
+          src: "/images/p5.jpg",
+        },
+        {
+          src: "/images/p6.jpg",
+        },
+        {
+          src: "/images/p7.jpg",
+        },
+            {
+          src: "/images/p8.jpg",
+        },
+        {
+          src: "/images/p9.jpg",
+        },
+         {
+          src: "/images/p10.jpg",
+        },
+             {
+          src: "/images/p11.jpg",
+        },
+        {
+          src: "/images/p12.jpg",
+        },
+         {
+          src: "/images/p13.jpg",
+        },
+        {
+          src: "/images/p14.jpg",
+        },
+         {
+          src: "/images/p15.jpg",
+        },
+        {
+          src: "/images/p16.jpg",
+        },
+        {
+          src: "/images/p17.jpg",
         }
       ]
     },
+        {
+  
+  id: 6,
+  title: "SIGN-IFY: Filipino Sign Language Recognition with Facial Expression Using YOLOv11",
+  tagText: "👐 Real-time FSL translation with facial expression detection",
+  tagColor: darkMode => darkMode ? "text-indigo-300" : "text-indigo-600",
+  type: "mobile",
+  imagePath: "/images/signify.png",
+  projectLink: "/projects/signify-fsl",
+  liveUrl: "https://github.com/Raysantos22",
+  repoUrl: "https://github.com/Raysantos22",
+  description: "SIGN-IFY is a real-time mobile application designed to help deaf and mute individuals communicate more effectively by translating Filipino Sign Language (FSL) gestures and facial expressions into text or speech. Powered by YOLOv11 and CNN-based deep learning, the app recognizes FSL signs and facial cues for more accurate and expressive translations.",
+  features: [
     {
-      id: 2,
-      title: "ECPOS - In House Point of Sale System",
-      tagText: "In-house POS system for BW Super Bakeshop",
-      tagColor: darkMode => darkMode ? "text-blue-300" : "text-blue-600",
-      type: "system",
-      imagePath: "/images/iskoyanlaptop1.png",
-      projectLink: "/projects/ecpos-system",
-      liveUrl: "https://demo.bwsuperbakeshop.com/pos",
-      repoUrl: "https://github.com/yourusername/ecpos-system",
-      description: "A comprehensive point of sale system developed for BW Super Bakeshop, deployed across 6 store locations. The system manages inventory, sales tracking, customer data, and generates real-time reports with cloud synchronization for seamless multi-store operations.",
-      features: [
+      icon: "✋",
+      title: "Hand Gesture Recognition",
+      description: "Detects FSL alphabet and word gestures in real-time using YOLOv11 and a dedicated gesture dataset."
+    },
         {
-          icon: "💼",
-          text: "Implemented across 6 store locations with inventory and sales tracking"
+      icon: "🗣️",
+      title: "Text and Speech Output",
+      description: "Translates detected signs and expressions into readable text and synthesized speech for broader communication."
+    },
+    {
+      icon: "😊",
+      title: "Facial Expression Detection",
+      description: "Recognizes emotional expressions (happy, sad, angry) to add emotional context to sign translation."
+    },
+
+    {
+      icon: "⚡",
+      title: "Real-Time Performance",
+      description: "Optimized for mobile using lightweight models for fast and accurate FSL recognition."
+    },
+    {
+      icon: "📊",
+      title: "Dataset Utilization",
+      description: "Trained on a combined dataset from Kaggle (5,077 images) covering alphabet, word signs, and facial expressions."
+    }
+  ],
+  technologies: [
+     {
+      name: "Kotlin",
+      iconPath: "/images/kotlin.png",
+      color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800"
+    },
+    {
+      name: "YOLOv11",
+      iconPath: "/images/yolo.png",
+      color: darkMode => darkMode ? "bg-red-900 bg-opacity-30 text-red-200" : "bg-red-100 text-red-800"
+    },
+   
+     {
+      name: "Pytorch",
+      iconPath: "/images/pytorch.png",
+      color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800"
+    },
+    {
+      name: "Tensorflow",
+      iconPath: "/images/tensorflow.png",
+      color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800"
+    },
+    {
+      name: "Kaggle",
+      iconPath: "/images/kaggle.png",
+      color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800"
+    },
+        {
+      name: "Text to Speech",
+      color: darkMode => darkMode ? "bg-red-900 bg-opacity-30 text-red-200" : "bg-red-100 text-red-800"
+    },
+    {
+      name: "Android Studio ",
+      iconPath: "/images/androidstudio.png",
+      color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800"
+    }
+  ],
+       screenshots: [
+        {
+          src: "/images/s1.jpg",
         },
         {
-          icon: "📱",
-          text: "Features include real-time reporting and cloud synchronization"
+          src: "/images/s2.jpg",
+        },
+         {
+          src: "/images/s3.jpg",
         },
         {
-          icon: "👥",
-          text: "Customer relationship management with loyalty program"
+          src: "/images/s4.jpg",
+        },
+         {
+          src: "/images/s5.jpg",
         },
         {
-          icon: "📊",
-          text: "Comprehensive analytics dashboard for business insights"
+          src: "/images/s6.jpg",
+        },
+        {
+          src: "/images/s7.jpg",
+        },
+        {
+          src: "/images/s8.jpg",
         }
-      ],
-      technologies: [
-        { 
-          name: "Kotlin",
-          iconPath: "/images/kotlin.png", 
-          color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800" 
-        },
-        { 
-          name: "Node.js",
-          iconPath: "/images/node.png", 
-          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
+      ]
+    },
+        
+ 
+    {
+  id: 4,
+  title: "Real-Time Face-Based Attendance System with Anti-Spoofing and Hand-Raising Detection",
+  tagText: "🎓 Face recognition system for secure student attendance",
+  tagColor: darkMode => darkMode ? "text-red-300" : "text-red-600",
+  type: "system",
+  imagePath: "/images/attendancefs1.png",
+  projectLink: "/projects/face-attendance-system",
+  liveUrl: "https://github.com/Raysantos22",
+  repoUrl: "https://github.com/Raysantos22",
+  description: "Developed a real-time student attendance system using Python, integrating Facenet for facial recognition, SVM for classification, and Haar cascades for anti-spoofing. The system features face login for secure authentication, hand-raising detection to track participation, and supports login time, logout, and admin access functionalities.",
+  features: [
+    {
+      icon: "🧠",
+      title: "Facial Recognition with Facenet",
+      description: "Uses Facenet embeddings for high-accuracy face identification and user verification."
+    },
+    {
+      icon: "🛡️",
+      title: "Anti-Spoofing Mechanism",
+      description: "Implements Haar cascade classifiers to prevent spoofing attempts using printed or digital photos."
+    },
+    {
+      icon: "✋",
+      title: "Hand-Raising Detection",
+      description: "Detects raised hands during class sessions to monitor student participation in real time."
+    },
+    {
+      icon: "⏱️",
+      title: "Login/Logout with Face",
+      description: "Captures attendance with time in and out using secure facial login."
+    },
+    {
+      icon: "🔐",
+      title: "Admin Access Panel",
+      description: "Provides administrator tools to review logs, manage users, and configure attendance policies."
+    }
+  ],
+  technologies: [
+    { 
+      name: "Python",
+      iconPath: "/images/python.png", 
+      color: darkMode => darkMode ? "bg-yellow-900 bg-opacity-30 text-yellow-200" : "bg-yellow-100 text-yellow-800" 
+    },
+    { 
+      name: "Facenet",
+      // iconPath: "/images/facenet.png", 
+      color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
+    },
+    { 
+      name: "SVM",
+      // iconPath: "/images/svm.png", 
+      color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800" 
+    },
+    { 
+      name: "Haar Cascade",
+      // iconPath: "/images/haar.png", 
+      color: darkMode => darkMode ? "bg-gray-900 bg-opacity-30 text-gray-200" : "bg-gray-100 text-gray-800" 
+    },
+    { 
+      name: "OpenCV",
+      iconPath: "/images/opencv.png", 
+      color: darkMode => darkMode ? "bg-teal-900 bg-opacity-30 text-teal-200" : "bg-teal-100 text-teal-800" 
+    }
+  ],
+      screenshots: [
+        {
+          src: "/images/r1.gif",
+          alt: "Activity dashboard"
+        }
+      ]
+    },
+  
+ {
+  id: 7,
+  title: "Snake Identifier: Classifying Venomous and Non-Venomous Snakes in the Philippines Using YOLOv11",
+  tagText: "🐍 Real-time snake identification and safety tool",
+  tagColor: darkMode => darkMode ? "text-red-300" : "text-red-600",
+  type: "mobile",
+  imagePath: "/images/snakedetection.png",
+  projectLink: "/projects/snake-identifier",
+  liveUrl: "https://github.com/Raysantos22",
+  repoUrl: "https://github.com/Raysantos22",
+  description: "A mobile app designed to identify and classify venomous and non-venomous snakes in the Philippines using YOLOv11. The application supports real-time detection, even offline, and provides vital safety information including species data, habitats, and first aid procedures for snakebite incidents. It aims to support outdoor enthusiasts, researchers, and medical professionals in snake-prone regions.",
+  features: [
+    {
+      icon: "📷",
+      title: "Real-Time Snake Detection",
+      description: "Capture and classify snake species in real-time using an optimized YOLOv11 model."
+    },
+    {
+      icon: "🧪",
+      title: "Venomous vs Non-Venomous Classification",
+      description: "Accurately distinguishes between venomous and non-venomous snakes using deep learning."
+    },
+    {
+      icon: "📵",
+      title: "Offline Functionality",
+      description: "Works without internet access, ideal for remote and rural field use."
+    },
+    {
+      icon: "📚",
+      title: "Educational Resources",
+      description: "Includes safety guidelines, habitat information, and snakebite first aid protocols."
+    },
+    {
+      icon: "🏥",
+      title: "Healthcare Support",
+      description: "Assists medical teams by helping identify snakes and selecting proper antivenom."
+    }
+  ],
+  technologies: [
+ 
+    {
+      name: "Kotlin",
+      iconPath: "/images/kotlin.png",
+      color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800"
+    },
+      {
+      name: "Tensorflow",
+      iconPath: "/images/tensorflow.png",
+      color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800"
+    },
+     {
+      name: "Pytorch",
+      iconPath: "/images/pytorch.png",
+      color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800"
+    },
+  
+    {
+      name: "Kaggle",
+      iconPath: "/images/kaggle.png",
+      color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800"
+    },
+       {
+      name: "YOLOv11",
+      iconPath: "/images/yolo.png",
+      color: darkMode => darkMode ? "bg-red-900 bg-opacity-30 text-red-200" : "bg-red-100 text-red-800"
+    },
+    {
+      name: "Android Studio ",
+      iconPath: "/images/androidstudio.png",
+      color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800"
+    }
+  ],
+        screenshots: [
+        {
+          src: "/images/snake1.jpg",
         },
         {
-        name: "Node.js",
-        iconPath: "/images/node.png", 
-        color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
-      },
+          src: "/images/snake2.jpg",
+        },
+         {
+          src: "/images/snake3.jpg",
+        },
+        {
+          src: "/images/snake4.jpg",
+        },
+         {
+          src: "/images/snake5.jpg",
+        },
+        {
+          src: "/images/snake6.jpg",
+        },
+        {
+          src: "/images/snake7.jpg",
+        },
+            {
+          src: "/images/snake8.jpg",
+        }
+      ]
+    },
+        
+  {
+  id: 8,
+  title: "AI-Driven Object Detection with Descriptive Audio Feedback for Blind Users Using YOLOv9",
+  tagText: "🎧 Assistive object detection for the visually impaired",
+  tagColor: darkMode => darkMode ? "text-yellow-300" : "text-yellow-600",
+  type: "mobile",
+  imagePath: "/images/blinddetection.png",
+  projectLink: "/projects/ai-vision-assist",
+  liveUrl: "https://github.com/Raysantos22",
+  repoUrl: "https://github.com/Raysantos22",
+  description: "A wearable mobile application built with YOLOv9 to assist visually impaired users by detecting objects and providing descriptive audio feedback in real time. The app includes GPS tracking for caregiver monitoring, distance measurement, and works offline—ensuring privacy, low latency, and functionality in any environment.",
+  features: [
+    {
+      icon: "🕶️",
+      title: "Wearable and Mobile-Based",
+      description: "Designed to be worn on the chest with a harness, allowing stable camera input and comfortable hands-free operation."
+    },
+    {
+      icon: "🎙️",
+      title: "Real-Time Audio Feedback",
+      description: "Objects detected in the camera's view are immediately described through text-to-speech output."
+    },
+    {
+      icon: "📏",
+      title: "Distance Estimation",
+      description: "Estimates proximity of objects using monocular depth estimation models for better spatial awareness."
+    },
+    {
+      icon: "📵",
+      title: "Offline Functionality",
+      description: "Processes all detection and audio feedback locally without internet dependency, ensuring user privacy and low latency."
+    },
+    {
+      icon: "📍",
+      title: "GPS Tracking",
+      description: "Allows caregivers to monitor the user’s location for added safety and peace of mind."
+    }
+  ],
+  technologies: [
+    {
+      name: "YOLOv9",
+      iconPath: "/images/yolo.png",
+      color: darkMode => darkMode ? "bg-red-900 bg-opacity-30 text-red-200" : "bg-red-100 text-red-800"
+    },
+    {
+      name: "TensorFlow",
+      iconPath: "/images/tensorflow.png",
+      color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800"
+    },
+    {
+      name: "Kotlin",
+      iconPath: "/images/kotlin.png",
+      color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800"
+    },
+   {
+      name: "Kaggle",
+      iconPath: "/images/kaggle.png",
+      color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800"
+    },
+      {
+      name: "Pytorch",
+      iconPath: "/images/pytorch.png",
+      color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800"
+    },
+    {
+      name: "Android Studio",
+      iconPath: "/images/androidstudio.png",
+      color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800"
+    }
+  ],
+      screenshots: [
+        {
+          src: "/images/b1.jpg",
+        },
+        {
+          src: "/images/b2.jpg",
+        },
+           {
+          src: "/images/b3.jpg",
+        },
+        {
+          src: "/images/b4.jpg",
+        },
+           {
+          src: "/images/b5.jpg",
+        },
+        {
+          src: "/images/b6.jpg",
+        },
+           {
+          src: "/images/b7.jpg",
+        },
+        {
+          src: "/images/b8.jpg",
+        },
+           {
+          src: "/images/b9.mp4",
+        },
+        {
+          src: "/images/b10.jpg",
+        }
+
+      
+      ]
+    },
+
+        {
+  id: 9,
+     title: "ECPOS - In House Point of Sale System (Website)",
+            tagText: "In-house POS system for BW Super Bakeshop",
+            tagColor: darkMode => darkMode ? "text-blue-300" : "text-blue-600",
+            type: "website",
+            imagePath: "/images/ecposlaptop.png",
+            projectLink: "/projects/ecpos-system",
+            liveUrl: "https://github.com/Raysantos22",
+            repoUrl: "https://github.com/Raysantos22",
+            description: "A fully integrated, in-house POS system developed for BW Super Bakeshop, deployed across 50+ store locations. ECPOS manages inventory, sales, customer engagement, employee attendance, and reporting. With real-time cloud synchronization and intuitive dashboards, it streamlines daily operations and improves decision-making across all branches.",
+           features: [
+                  {
+                    icon: "💼",
+                    title: "Multi-Branch Deployment",
+                    description: "Seamlessly operates across 50+ branches with support for multi-terminal usage per store."
+                  },
+
+                  {
+                    icon: "📈",
+                    title: "Sales & Financial Reporting",
+                    description: "Generates comprehensive sales reports, discount analysis, and financial summaries with visual dashboards for easy business insights."
+                  },
+                  {
+                    icon: "👥",
+                    title: "Customer & Loyalty Management",
+                    description: "Built-in CRM with loyalty point systems and member tracking to boost customer retention and personalized service."
+                  },
+                  {
+                    icon: "⏱️",
+                    title: "Employee Attendance & Time Tracking",
+                    description: "Monitors employee check-ins/outs, records working hours, and manages shift schedules for HR efficiency."
+                  },
+                    {
+                    icon: "📦",
+                    title: "Advanced Inventory Management",
+                    description: "Handles batch counting, inventory movements, and real-time stock level tracking with stock transfer support between branches."
+                  },
+                  {
+                    icon: "🛒",
+                    title: "Flexible Cashier Module",
+                    description: "Designed for fast-paced retail environments with multi-window support, change fund management, and customizable item carts."
+                  },
+                  {
+                    icon: "🧾",
+                    title: "Order & Expense Management",
+                    description: "Supports order processing, store-level expense recording, and request handling, ensuring tight cost control."
+                  },
+                  {
+                    icon: "⚙️",
+                    title: "Administrative Settings & Control Panel",
+                    description: "Includes printer configuration, POS info setup, and emergency sync tools for store admins and IT support."
+                  }
+                ]
+                ,
+      technologies: [
         { 
           name: "Laravel API",
           iconPath: "/images/laravel.png", 
           color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800" 
         },
-        { 
-          name: "MySQL",
-          iconPath: "/images/mysql.png", 
-          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
-        }
-      ],
-      screenshots: [
-        {
-          src: "/images/pos-screenshot1.png",
-          alt: "Sales interface"
-        },
-        {
-          src: "/images/pos-screenshot2.png",
-          alt: "Inventory management"
-        },
-        {
-          src: "/images/pos-screenshot3.png",
-          alt: "Reporting dashboard"
-        }
-      ]
-    },
-    {
-      id: 3,
-      title: "Health Tracking App",
-      tagText: "Mobile application for health monitoring",
-      tagColor: darkMode => darkMode ? "text-green-300" : "text-green-600",
-      type: "mobile",
-      imagePath: "/images/attendancefs1.png",
-      projectLink: "/projects/health-tracker",
-      liveUrl: "https://play.google.com/store/apps/healthtracker",
-      repoUrl: "https://github.com/yourusername/health-tracker",
-      description: "A comprehensive health tracking mobile application that allows users to monitor their physical activities, nutrition intake, sleep patterns, and overall wellbeing. Features include personalized insights, integration with wearable devices, and goal setting with progress tracking.",
-      features: [
-        {
-          icon: "📱",
-          text: "Clean UI/UX with activity tracking and personalized insights"
-        },
-        {
-          icon: "💡",
-          text: "Integration with wearable devices and health APIs asdsadsadsadsadasasdsadsadasdsadsadsazasda"
-        },
-        {
-          icon: "🔔",
-          text: "Customizable notifications and health reminders"
-        },
-        {
-          icon: "📊",
-          text: "Data visualization for health metrics over time"
-        }
-      ],
-      technologies: [
-        { 
-          name: "Kotlin",
-          iconPath: "/images/kotlin.png", 
-          color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800" 
-        },
-        { 
-          name: "Firebase",
-          iconPath: "/images/firebase.png", 
+           { 
+          name: "PHP",
+          iconPath: "/images/php.png", 
           color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800" 
         },
-        { 
-          name: "Android",
-          iconPath: "/images/firebase.png", 
+          { 
+          name: "Node.js",
+          iconPath: "/images/node.png", 
+          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
+        },
+          { 
+          name: "JavaScript",
+          iconPath: "/images/javascriptlogo.png", 
+          color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800" 
+        },
+        
+          { 
+          name: "Mysql",
+          iconPath: "/images/mysql.png", 
+          color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800" 
+        },
+         { 
+          name: "TailWind",
+          iconPath: "/images/tailwind.png", 
           color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
         },
            { 
-          name: "Android",
-          iconPath: "/images/firebase.png", 
-          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
-        },
-        { 
-          name: "Android",
-          iconPath: "/images/firebase.png", 
-          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
-        },
-        { 
-          name: "Room DB",
-          iconPath: "/images/roomdb.png", 
-          color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800" 
-        }
-      ],
-      screenshots: [
-        {
-          src: "/images/health-screenshot1.png",
-          alt: "Activity dashboard"
-        },
-        {
-          src: "/images/health-screenshot2.png",
-          alt: "Nutrition tracker"
-        },
-        {
-          src: "/images/health-screenshot3.png",
-          alt: "Sleep analysis"
-        }
-      ]
-    },
-     {
-      id: 4,
-      title: "Health Tracking App",
-      tagText: "Mobile application for health monitoring",
-      tagColor: darkMode => darkMode ? "text-green-300" : "text-green-600",
-      type: "mobile",
-      imagePath: "/images/attendancefs1.png",
-      projectLink: "/projects/health-tracker",
-      liveUrl: "https://play.google.com/store/apps/healthtracker",
-      repoUrl: "https://github.com/yourusername/health-tracker",
-      description: "A comprehensive health tracking mobile application that allows users to monitor their physical activities, nutrition intake, sleep patterns, and overall wellbeing. Features include personalized insights, integration with wearable devices, and goal setting with progress tracking.",
-      features: [
-        {
-          icon: "📱",
-          text: "Clean UI/UX with activity tracking and personalized insights"
-        },
-        {
-          icon: "💡",
-          text: "Integration with wearable devices and health APIs asdsadsadsadsadasasdsadsadasdsadsadsazasda"
-        },
-        {
-          icon: "🔔",
-          text: "Customizable notifications and health reminders"
-        },
-        {
-          icon: "📊",
-          text: "Data visualization for health metrics over time"
-        }
-      ],
-      technologies: [
-        { 
-          name: "Kotlin",
-          iconPath: "/images/kotlin.png", 
-          color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800" 
-        },
-        { 
-          name: "Firebase",
-          iconPath: "/images/firebase.png", 
+          name: "HTML",
+          iconPath: "/images/html.png", 
           color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800" 
         },
-        { 
-          name: "Android",
-          iconPath: "/images/firebase.png", 
+          
+            { 
+          name: "CSS",
+          iconPath: "/images/css3.png", 
           color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
-        },
-           { 
-          name: "Android",
-          iconPath: "/images/firebase.png", 
-          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
-        },
-        { 
-          name: "Android",
-          iconPath: "/images/firebase.png", 
-          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
-        },
-        { 
-          name: "Room DB",
-          iconPath: "/images/roomdb.png", 
-          color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800" 
         }
       ],
-      screenshots: [
-        {
-          src: "/images/health-screenshot1.png",
-          alt: "Activity dashboard"
+       screenshots: [
+           {
+          src: "/images/e1.png",
         },
         {
-          src: "/images/health-screenshot2.png",
-          alt: "Nutrition tracker"
+          src: "/images/e2.png",
+        },
+             {
+          src: "/images/e3.png",
         },
         {
-          src: "/images/health-screenshot3.png",
-          alt: "Sleep analysis"
+          src: "/images/e4.png",
+        },
+             {
+          src: "/images/e5.png",
+        },
+        {
+          src: "/images/e6.png",
+        },
+             {
+          src: "/images/e7.png",
+        },
+        {
+          src: "/images/e8.png",
+        },
+             {
+          src: "/images/e9.png",
+        },
+        {
+          src: "/images/e10.png",
+        },
+             {
+          src: "/images/e11.png",
+        },
+        {
+          src: "/images/e12.png",
+        },
+             {
+          src: "/images/e13.png",
+        },
+        {
+          src: "/images/e14.png",
+        },
+             {
+          src: "/images/e15.png",
+        },
+        {
+          src: "/images/e16.png",
+        },
+             {
+          src: "/images/e17.png",
+        },
+        {
+          src: "/images/e18.png",
+        },
+             {
+          src: "/images/e19.png",
+        },
+        {
+          src: "/images/e20.png",
+        },
+             {
+          src: "/images/e21.png",
+        },
+        {
+          src: "/images/e22.png",
+        },
+             {
+          src: "/images/e23.png",
+        },
+        {
+          src: "/images/e24.png",
+        },
+             {
+          src: "/images/e25.png",
+        },
+        {
+          src: "/images/e26.jpg",
+        },
+             {
+          src: "/images/e27.jpg",
+        },
+        {
+          src: "/images/e28.jpg",
+        },
+             {
+          src: "/images/e29.jpg",
+        },
+        {
+          src: "/images/e30.jpg",
+        },
+             {
+          src: "/images/e31.jpg",
+        },
+        {
+          src: "/images/e32.jpg",
         }
       ]
     },
-    // Continue with the rest of your projects...
+   {
+  id: 10,
+  title: "ISKOYAN: A Scholarship Application and Distribution System with Prescriptive Analytics for Ramos",
+  tagText: "🎓 Data-driven scholarship system with intelligent recommendations",
+  tagColor: darkMode => darkMode ? "text-indigo-300" : "text-indigo-600",
+  type: "website",
+  imagePath: "/images/iskoyanlaptop1.png",
+  projectLink: "/projects/iskoyan",
+  liveUrl: "https://github.com/Raysantos22",
+  repoUrl: "https://github.com/Raysantos22",
+  description: "ISKOYAN is a data-driven web platform built to improve the scholarship application and distribution process using prescriptive analytics. It offers intelligent recommendations, status tracking, interview management, and automated decision support for scholarship allocation. Designed for applicants, scholars, and administrators, ISKOYAN ensures efficiency, transparency, and fairness in every step.",
+  features: [
     {
-      id: 5,
-      title: "E-commerce Solution",
-      tagText: "Full-featured shopping platform",
-      tagColor: darkMode => darkMode ? "text-emerald-300" : "text-emerald-600",
-      type: "website",
-      imagePath: "/images/phone.png",
-      projectLink: "/projects/ecommerce",
-      liveUrl: "https://shop-demo.example.com",
-      repoUrl: "https://github.com/yourusername/ecommerce-platform",
-      description: "A comprehensive e-commerce platform with responsive product browsing, secure payment processing, user account management, and an administrative dashboard for inventory and order management. The platform supports multiple payment gateways and includes analytics for business intelligence.",
-      features: [
-        {
-          icon: "🔒",
-          text: "Secure payment integration and responsive product browsing"
-        },
-        {
-          icon: "📊",
-          text: "Analytics dashboard and inventory management system"
-        },
-        {
-          icon: "🛍️",
-          text: "Customer reviews and product recommendation engine"
-        },
-        {
-          icon: "📱",
-          text: "Mobile-responsive design with optimized checkout flow"
-        }
-      ],
-      technologies: [
-        { 
-          name: "Java",
-          iconPath: "/images/java.png", 
-          color: darkMode => darkMode ? "bg-indigo-900 bg-opacity-30 text-indigo-200" : "bg-indigo-100 text-indigo-800" 
-        },
-        { 
-          name: "Spring",
-          iconPath: "/images/java.png", 
-          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
-        },
-        { 
-          name: "MySQL",
-          iconPath: "/images/mysql.png", 
-          color: darkMode => darkMode ? "bg-yellow-900 bg-opacity-30 text-yellow-200" : "bg-yellow-100 text-yellow-800" 
-        },
-        { 
-          name: "Android",
-          iconPath: "/images/java.png", 
-          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
-        },        { 
-          name: "React",
-          iconPath: "/images/react.png", 
-          color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800" 
-        }
-      ],
-      screenshots: [
-        {
-          src: "/images/kotlin.png",
-          alt: "Product listing page"
-        },
-        {
-          src: "/images/ecommerce-screenshot2.png",
-          alt: "Shopping cart view"
-        },
-        {
-          src: "/images/ecommerce-screenshot3.png",
-          alt: "Admin dashboard"
-        }
-      ]
+      icon: "📝",
+      title: "Smart Application & Recommendation",
+      description: "Applicants submit details and receive personalized scholarship recommendations using prescriptive analytics."
+    },
+    {
+      icon: "📷",
+      title: "Camera-Based Online Interviews",
+      description: "Built-in support for live interviews using webcam with optional liveliness detection."
+    },
+    {
+      icon: "📊",
+      title: "Admin Dashboard & Reporting",
+      description: "Comprehensive admin module for evaluation, interview scheduling, distribution notifications, and data backup."
+    },
+    {
+      icon: "🔔",
+      title: "Application Status Tracking & Alerts",
+      description: "Users receive updates, notices, and support ticket feedback in real-time."
+    },
+    {
+      icon: "🧠",
+      title: "Prescriptive Analytics Engine",
+      description: "Intelligently prescribes suitable scholarships based on applicant data and funding constraints."
     }
+  ],
+  technologies: [
+    {
+      name: "PHP",
+      iconPath: "/images/php.png",
+      color: darkMode => darkMode ? "bg-yellow-900 bg-opacity-30 text-yellow-200" : "bg-yellow-100 text-yellow-800"
+    },
+    {
+      name: "HTML",
+      iconPath: "/images/html.png",
+      color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800"
+    },
+    {
+      name: "CSS",
+      iconPath: "/images/css3.png",
+      color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800"
+    },
+    {
+      name: "JavaScript",
+      iconPath: "/images/javascriptlogo.png",
+      color: darkMode => darkMode ? "bg-yellow-800 bg-opacity-30 text-yellow-200" : "bg-yellow-100 text-yellow-800"
+    },
+    {
+      name: "Mysql",
+      iconPath: "/images/mysql.png",
+      color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800"
+    }
+  ],
+      screenshots: [
+        {
+          src: "/images/health-screenshot1.png",
+          alt: "Activity dashboard"
+        },
+        {
+          src: "/images/health-screenshot2.png",
+          alt: "Nutrition tracker"
+        },
+        {
+          src: "/images/health-screenshot3.png",
+          alt: "Sleep analysis"
+        }
+      ]
+    },
+         {
+  id: 3,
+  title: "FoxNav: A 2D Navigation System using MAPBOX and A* Algorithm",
+  tagText: "📍 Real-time TSU campus navigation for freshmen",
+  tagColor: darkMode => darkMode ? "text-purple-300" : "text-purple-600",
+  type: "mobile",
+  imagePath: "/images/foxnav2.png",
+  projectLink: "/projects/foxnav-navigation",
+  liveUrl: "https://github.com/Raysantos22",
+  repoUrl: "https://github.com/Raysantos22",
+  description: "FoxNav assists TSU freshmen with real-time outdoor navigation using Mapbox API and seamless indoor navigation through a custom 2D map and A* pathfinding algorithm. Users can locate themselves inside buildings and find the fastest route to any room on campus.",
+  features: [
+    {
+      icon: "🗺️",
+      title: "Real-Time Outdoor Navigation",
+      description: "Utilizes Mapbox API for GPS-based navigation around the TSU campus."
+    },
+    {
+      icon: "🏫",
+      title: "Indoor Room-to-Room Navigation",
+      description: "Custom 2D campus map with an A* algorithm for optimized indoor pathfinding."
+    },
+    {
+      icon: "📍",
+      title: "Current Position Detection",
+      description: "Shows user's live location on both indoor and outdoor maps for accurate guidance."
+    },
+    {
+      icon: "📐",
+      title: "Optimized Pathfinding",
+      description: "A* algorithm ensures shortest and most efficient route recommendations within campus buildings."
+    }
+  ],
+      technologies: [
+        { 
+          name: "Kotlin",
+          iconPath: "/images/kotlin.png", 
+          color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800" 
+        },
+        { 
+            name: "Android Studio",
+            iconPath: "/images/androidstudio.png",
+            color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800" 
+        },
+          {
+    name: "Mapbox",
+    iconPath: "/images/mapbox.png",
+    color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800"
+  },
+  {
+    name: "A* Algorithm",
+    iconPath: "/images/astar1.png",
+    color: darkMode => darkMode ? "bg-gray-900 bg-opacity-30 text-gray-200" : "bg-gray-100 text-gray-800"
+  },
+      ],
+      screenshots: [
+        {
+          src: "/images/foxnav1.jpg",
+        },
+        {
+          src: "/images/foxnav2.jpg",
+        },
+         {
+          src: "/images/foxnav3.jpg",
+        },
+        {
+          src: "/images/foxnav4.jpg",
+        },
+         {
+          src: "/images/foxnav5.jpg",
+        },
+        {
+          src: "/images/foxnav6.jpg",
+        },
+          {
+          src: "/images/foxnav7.jpg",
+        },
+        {
+          src: "/images/foxnav8.jpg",
+        },
+         {
+          src: "/images/foxnav9.jpg",
+        },
+        {
+          src: "/images/foxnav10.jpg",
+        },
+         {
+          src: "/images/foxnav11.jpg",
+        },
+        {
+          src: "/images/foxnav12.jpg",
+        },
+         {
+          src: "/images/foxnav13.jpg",
+        }
+      ]
+    },
+  {
+  id: 11,
+  title: "Hybrid Oral Health Detection using YOLOv8 & TensorFlow",
+  tagText: "🦷 AI-based oral disease detection for smokers",
+  tagColor: darkMode => darkMode ? "text-red-300" : "text-red-600",
+  type: "mobile" ,
+  imagePath: "/images/oralguard1.png",
+  projectLink: "/projects/oral-health-detection",
+  liveUrl: "https://github.com/Raysantos22",
+  repoUrl: "https://github.com/Raysantos22",
+  description: "A web-based AI system that uses YOLOv8 for object detection and TensorFlow with EfficientNet for classification to detect oral diseases in cigarette and e-cigarette users. Users can upload or capture oral images for real-time analysis, receive descriptive feedback, and gain early warnings for potential health risks like gum disease, discoloration, lesions, or oral cancer. Designed for both users and healthcare professionals, the platform promotes proactive health monitoring and education.",
+  features: [
+    {
+      icon: "📸",
+      title: "Image Capture and Upload",
+      description: "Users can take or upload images for analysis of oral conditions in real-time."
+    },
+    {
+      icon: "🧠",
+      title: "YOLOv8 Object Detection",
+      description: "Efficiently detects affected areas in oral images using the latest YOLOv8 model."
+    },
+    {
+      icon: "🔍",
+      title: "TensorFlow Classification",
+      description: "Classifies oral health issues such as gingivitis, caries, ulcers, or lesions using EfficientNet."
+    },
+    {
+      icon: "💬",
+      title: "Descriptive Feedback & Recommendations",
+      description: "Displays oral health insights and suggests next steps for users to take."
+    },
+    {
+      icon: "📊",
+      title: "Real-Time and Offline Functionality",
+      description: "Processes input instantly, with optional offline support for remote access."
+    }
+  ],
+  // technologies: [
+  //      {
+  //     name: "PHP",
+  //     iconPath: "/images/php.png",
+  //     color: darkMode => darkMode ? "bg-yellow-900 bg-opacity-30 text-yellow-200" : "bg-yellow-100 text-yellow-800"
+  //   },
+  //   {
+  //     name: "YOLOv8",
+  //     iconPath: "/images/yolo.png",
+  //     color: darkMode => darkMode ? "bg-red-900 bg-opacity-30 text-red-200" : "bg-red-100 text-red-800"
+  //   },
+  //   {
+  //     name: "TensorFlow",
+  //     iconPath: "/images/tensorflow.png",
+  //     color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800"
+  //   },
+  //   {
+  //     name: "Pytorch",
+  //     iconPath: "/images/pytorch.png",
+  //     color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800"
+  //   },
+  //   {
+  //     name: "Flask",
+  //     // iconPath: "/images/flask.png",
+  //     color: darkMode => darkMode ? "bg-gray-900 bg-opacity-30 text-gray-200" : "bg-gray-100 text-gray-800"
+  //   },
+  //    {
+  //     name: "HTML",
+  //     iconPath: "/images/html.png",
+  //     color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800"
+  //   },
+  //   {
+  //     name: "CSS",
+  //     iconPath: "/images/css3.png",
+  //     color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800"
+  //   },
+  //   {
+  //     name: "JavaScript",
+  //     iconPath: "/images/javascriptlogo.png",
+  //     color: darkMode => darkMode ? "bg-yellow-800 bg-opacity-30 text-yellow-200" : "bg-yellow-100 text-yellow-800"
+  //   },
+  //   {
+  //     name: "Mysql",
+  //     iconPath: "/images/mysql.png",
+  //     color: darkMode => darkMode ? "bg-purple-900 bg-opacity-30 text-purple-200" : "bg-purple-100 text-purple-800"
+  //   },  
+  //   {
+  //     name: "OpenCV",
+  //     iconPath: "/images/opencv.png",
+  //     color: darkMode => darkMode ? "bg-blue-900 bg-opacity-30 text-blue-200" : "bg-blue-100 text-blue-800"
+  //   }
+  technologies: [
+    {
+      name: "YOLOv9",
+      iconPath: "/images/yolo.png",
+      color: darkMode => darkMode ? "bg-red-900 bg-opacity-30 text-red-200" : "bg-red-100 text-red-800"
+    },
+    {
+      name: "TensorFlow",
+      iconPath: "/images/tensorflow.png",
+      color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800"
+    },
+    {
+      name: "Kotlin",
+      iconPath: "/images/kotlin.png",
+      color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800"
+    },
+   {
+      name: "Kaggle",
+      iconPath: "/images/kaggle.png",
+      color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800"
+    },
+      {
+      name: "Pytorch",
+      iconPath: "/images/pytorch.png",
+      color: darkMode => darkMode ? "bg-orange-900 bg-opacity-30 text-orange-200" : "bg-orange-100 text-orange-800"
+    },
+    {
+      name: "Android Studio",
+      iconPath: "/images/androidstudio.png",
+      color: darkMode => darkMode ? "bg-green-900 bg-opacity-30 text-green-200" : "bg-green-100 text-green-800"
+    }
+  ],
+      screenshots: [
+        {
+          src: "/images/health-screenshot1.png",
+          alt: "Activity dashboard"
+        },
+        {
+          src: "/images/health-screenshot2.png",
+          alt: "Nutrition tracker"
+        },
+        {
+          src: "/images/health-screenshot3.png",
+          alt: "Sleep analysis"
+        }
+      ]
+    },
+    
+    // Continue with the rest of your projects...
+    
+    
+ 
   ];
+  
   const filteredProjects = useMemo(() => {
     return projectsData.filter(project => 
       activeFilter === 'all' || project.type === activeFilter
@@ -1324,17 +2320,17 @@ useEffect(() => {
                     
                     {/* Social media links alongside button - smaller on mobile */}
                     <div className="flex space-x-2 mt-4 md:mt-0">
-                      <a href="#" className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-blue-500 shadow-md transform transition-transform duration-300 hover:scale-110 hover:rotate-6">
+                      <a href="https://web.facebook.com/ray.santos.189893/" className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-blue-500 shadow-md transform transition-transform duration-300 hover:scale-110 hover:rotate-6">
                         <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z" />
                         </svg>
                       </a>
-                      <a href="#" className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-blue-400 shadow-md transform transition-transform duration-300 hover:scale-110 hover:rotate-6">
+                      <a href="https://web.facebook.com/ray.santos.189893/" className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-blue-400 shadow-md transform transition-transform duration-300 hover:scale-110 hover:rotate-6">
                         <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.054 10.054 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                         </svg>
                       </a>
-                      <a href="#" className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-blue-700 shadow-md transform transition-transform duration-300 hover:scale-110 hover:rotate-6">
+                      <a href="https://web.facebook.com/ray.santos.189893/" className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center bg-blue-700 shadow-md transform transition-transform duration-300 hover:scale-110 hover:rotate-6">
                         <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                         </svg>
@@ -1452,20 +2448,18 @@ useEffect(() => {
                   </div>
                   
                   {/* Features with exactly 2 displayed with consistent height */}
-                  <div className="mb-3">
-                    <ul className="list-none">
-                      {project.features.slice(0, 2).map((feature, i) => (
-                        <li key={i} className="flex items-start ">
-                          <span className="text-lg mr-2 mt-1">{feature.icon}</span>
-                          <div className={`${darkMode ? 'text-blue-100' : 'text-blue-900'} min-h-16 flex flex-col justify-center`}>
-                            <p className="mb-1">{feature.text}</p>
-                            {/* Add an empty paragraph if there's only one paragraph to maintain consistent spacing */}
-                            <p className="text-xs opacity-0">Spacer</p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  {project.features.slice(0, 2).map((feature, i) => (
+  <li key={i} className="flex items-start">
+    <span className="text-lg mr-2 mt-1">{feature.icon}</span>
+    <div className={`${darkMode ? 'text-blue-100' : 'text-blue-900'} min-h-16 flex flex-col justify-center`}>
+      <p className="mb-1">
+        <strong className="block">{feature.title}</strong>
+        <span>{feature.description}</span>
+      </p>
+      <p className="text-xs opacity-0">Spacer</p>
+    </div>
+  </li>
+))}
 
                   {/* Technology tags - simplified version */}
                   <div className="mt-3 mb-3">
@@ -1563,10 +2557,9 @@ useEffect(() => {
           right: window.innerWidth < 1024 ? "-290px" : "-320px",
           width: window.innerWidth < 1024 ? "75%" : "105%",
         },
-        "/images/another-case.png": {
-          right: window.innerWidth < 1024 ? "-120px" : "-200px",
-          width: window.innerWidth < 1024 ? "350px" : "500px",
-          zIndex: 20,
+        "/images/ecposlaptop.png": {
+          right: window.innerWidth < 1024 ? "-290px" : "-320px",
+          width: window.innerWidth < 1024 ? "75%" : "105%",
         },
       }[project.imagePath] || {
         right: window.innerWidth < 1024 ? "-350px" : "-350px",
@@ -1754,7 +2747,7 @@ useEffect(() => {
                 </div>
                 <div>
                   <div className={`text-xs font-semibold ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Phone</div>
-                  <div className={`${darkMode ? 'text-blue-100' : 'text-blue-900'}`}>09277095201</div>
+                  <div className={`${darkMode ? 'text-blue-100' : 'text-blue-900'}`}>09941173418</div>
                 </div>
               </div>
               
@@ -1868,7 +2861,7 @@ useEffect(() => {
     <div className="flex justify-center mt-12">
       <AnimatedText direction="up" delay={0.8}>
         <a 
-          href="#" 
+          href="images/csvray1.pdf" 
           className={`px-8 py-3 rounded-lg ${darkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'} text-white font-bold flex items-center space-x-2 transform transition-all duration-300 hover:scale-105 shadow-lg`}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -2647,7 +3640,7 @@ useEffect(() => {
               </div>
               <div>
                 <h4 className={`text-lg font-semibold ${darkMode ? 'text-blue-200' : 'text-blue-700'}`}>Email</h4>
-                <p className={`${darkMode ? 'text-blue-100' : 'text-blue-900'} mt-1`}>ray@example.com</p>
+                <p className={`${darkMode ? 'text-blue-100' : 'text-blue-900'} mt-1`}>qqqraysantos@example.com</p>
               </div>
             </div>
             
@@ -2659,7 +3652,7 @@ useEffect(() => {
               </div>
               <div>
                 <h4 className={`text-lg font-semibold ${darkMode ? 'text-blue-200' : 'text-blue-700'}`}>Phone</h4>
-                <p className={`${darkMode ? 'text-blue-100' : 'text-blue-900'} mt-1`}>+1 (555) 123-4567</p>
+                <p className={`${darkMode ? 'text-blue-100' : 'text-blue-900'} mt-1`}>+63 9941173418</p>
               </div>
             </div>
             
@@ -2672,7 +3665,7 @@ useEffect(() => {
               </div>
               <div>
                 <h4 className={`text-lg font-semibold ${darkMode ? 'text-blue-200' : 'text-blue-700'}`}>Location</h4>
-                <p className={`${darkMode ? 'text-blue-100' : 'text-blue-900'} mt-1`}>Angeles City, Central Luzon, Philippines</p>
+                <p className={`${darkMode ? 'text-blue-100' : 'text-blue-900'} mt-1`}>Sapang Tagalog, Tarlac City,Tarlac</p>
               </div>
             </div>
 
@@ -2692,7 +3685,7 @@ useEffect(() => {
           <h3 className={`text-2xl font-bold my-6 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>Connect With Me</h3>
           <div className="flex space-x-4">
             <a 
-              href="#" 
+              href="https://web.facebook.com/ray.santos.189893/" 
               className={`w-12 h-12 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-blue-600' : 'bg-gray-200 hover:bg-blue-600'} flex items-center justify-center transition-all duration-300 transform hover:scale-110 hover:rotate-6 ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-white'}`}
               aria-label="Facebook"
             >
@@ -2701,7 +3694,7 @@ useEffect(() => {
               </svg>
             </a>
             <a 
-              href="#" 
+              href="https://web.facebook.com/ray.santos.189893/" 
               className={`w-12 h-12 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-blue-400' : 'bg-gray-200 hover:bg-blue-400'} flex items-center justify-center transition-all duration-300 transform hover:scale-110 hover:rotate-6 ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-white'}`}
               aria-label="Twitter"
             >
@@ -2710,7 +3703,7 @@ useEffect(() => {
               </svg>
             </a>
             <a 
-              href="#" 
+              href="https://web.facebook.com/ray.santos.189893/" 
               className={`w-12 h-12 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-blue-700' : 'bg-gray-200 hover:bg-blue-700'} flex items-center justify-center transition-all duration-300 transform hover:scale-110 hover:rotate-6 ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-white'}`}
               aria-label="LinkedIn"
             >
@@ -2719,7 +3712,7 @@ useEffect(() => {
               </svg>
             </a>
             <a 
-              href="#" 
+              href="https://web.facebook.com/ray.santos.189893/" 
               className={`w-12 h-12 rounded-full ${darkMode ? 'bg-gray-700 hover:bg-gray-900' : 'bg-gray-200 hover:bg-gray-800'} flex items-center justify-center transition-all duration-300 transform hover:scale-110 hover:rotate-6 ${darkMode ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-white'}`}
               aria-label="GitHub"
             >
@@ -2765,7 +3758,7 @@ useEffect(() => {
               ></textarea>
             </div>
             <button 
-              onClick={handleFormSubmit} 
+              // onClick={handleFormSubmit} 
               className={`w-full ${darkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'} text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 transform hover:scale-105 flex items-center justify-center group`}
             >
               Send Message
