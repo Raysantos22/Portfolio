@@ -1002,8 +1002,8 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
   type: "mobile",
   imagePath: "/images/plantmonitoring3.png",
   projectLink: "/projects/vegetable-monitoring",
-  liveUrl: "https://github.com/Raysantos22",
-  repoUrl: "https://github.com/Raysantos22",
+  liveUrl: "https://github.com/Raysantos22/Plant-Detection",
+  repoUrl: "https://github.com/Raysantos22/Plant-Detection",
   description: "A mobile-based application developed to help new gardeners monitor tomato plant health using real-time image processing. Built with YOLOv11 for object detection, it identifies pests and diseases, provides severity assessments, and suggests treatment recommendations for improved crop quality.",
   features: [
     {
@@ -1306,8 +1306,8 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
   type: "mobile",
   imagePath: "/images/snakedetection8.png",
   projectLink: "/projects/snake-identifier",
-  liveUrl: "https://github.com/Raysantos22",
-  repoUrl: "https://github.com/Raysantos22",
+  liveUrl: "https://github.com/Raysantos22/SnakeDetection-Yolov11",
+  repoUrl: "https://github.com/Raysantos22/SnakeDetection-Yolov11",
   description: "A mobile app designed to identify and classify venomous and non-venomous snakes in the Philippines using YOLOv11. The application supports real-time detection, even offline, and provides vital safety information including species data, habitats, and first aid procedures for snakebite incidents. It aims to support outdoor enthusiasts, researchers, and medical professionals in snake-prone regions.",
   features: [
     {
@@ -1406,8 +1406,8 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
   type: "mobile",
   imagePath: "/images/blinddetection2.png",
   projectLink: "/projects/ai-vision-assist",
-  liveUrl: "https://github.com/Raysantos22",
-  repoUrl: "https://github.com/Raysantos22",
+  liveUrl: "https://github.com/Raysantos22/Blind-User-Object-Detection",
+  repoUrl: "https://github.com/Raysantos22/Blind-User-Object-Detection",
   description: "A wearable mobile application built with YOLOv9 to assist visually impaired users by detecting objects and providing descriptive audio feedback in real time. The app includes GPS tracking for caregiver monitoring, distance measurement, and works offline—ensuring privacy, low latency, and functionality in any environment.",
   features: [
     {
@@ -1512,8 +1512,8 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
             type: "website",
             imagePath: "/images/ecposlaptop1.png",
             projectLink: "/projects/ecpos-system",
-            liveUrl: "https://github.com/Raysantos22",
-            repoUrl: "https://github.com/Raysantos22",
+            liveUrl: "eljin.org",
+            repoUrl: "https://github.com/Raysantos22/ECPOS",
             description: "A fully integrated, in-house POS system developed for BW Super Bakeshop, deployed across 50+ store locations. ECPOS manages inventory, sales, customer engagement, employee attendance, and reporting. With real-time cloud synchronization and intuitive dashboards, it streamlines daily operations and improves decision-making across all branches.",
            features: [
                   {
@@ -2459,17 +2459,17 @@ useEffect(() => {
                           key={i} 
                           className={`inline-flex items-center gap-2 ${tech.color(darkMode)} text-xs px-3 py-1 rounded-full`}
                         >
-                          {tech.iconPath && !isMobile && (
-                            <img 
-                              src={tech.iconPath} 
-                              alt={`${tech.name} icon`} 
-                              className="h-4 w-4 object-contain"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = "/icons/default-icon.png";
-                              }}
-                            />
-                          )}
+                         {tech.iconPath && (
+                          <img 
+                            src={tech.iconPath} 
+                            alt={`${tech.name} icon`} 
+                            className="h-4 w-4 object-contain"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/icons/default-icon.png";
+                            }}
+                          />
+)}
                           {tech.name}
                         </span>
                       ))}
