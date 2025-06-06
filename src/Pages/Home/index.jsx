@@ -713,7 +713,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
             tagText: "In-house POS system for BW Super Bakeshop",
             tagColor: darkMode => darkMode ? "text-blue-300" : "text-blue-600",
             type: "mobile",
-            imagePath: "/images/ecpostablet.png",
+            imagePath: "/images/ecpostablet1.png",
             projectLink: "https://eljin.org/",
             liveUrl: "https://eljin.org/",
             repoUrl: "https://github.com/Raysantos22/ECPOS",
@@ -898,7 +898,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
   tagText: "🏆 Winner of TSU 2024 Best Thesis Award in BSCS",
   tagColor: darkMode => darkMode ? "text-yellow-300" : "text-yellow-600",
   type: "mobile",
-  imagePath: "/images/diseasesscan.png",
+  imagePath: "/images/diseasesscan1.png",
   projectLink: "/projects/skin-disease-detection",
   liveUrl: "https://github.com/Raysantos22",
   repoUrl: "https://github.com/Raysantos22",
@@ -1000,7 +1000,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
   tagText: "🌿 Real-time mobile app for tomato pest and disease detection",
   tagColor: darkMode => darkMode ? "text-green-300" : "text-green-600",
   type: "mobile",
-  imagePath: "/images/plantmonitoring1.png",
+  imagePath: "/images/plantmonitoring3.png",
   projectLink: "/projects/vegetable-monitoring",
   liveUrl: "https://github.com/Raysantos22",
   repoUrl: "https://github.com/Raysantos22",
@@ -1126,7 +1126,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
   tagText: "👐 Real-time FSL translation with facial expression detection",
   tagColor: darkMode => darkMode ? "text-indigo-300" : "text-indigo-600",
   type: "mobile",
-  imagePath: "/images/signify.png",
+  imagePath: "/images/signify1.png",
   projectLink: "/projects/signify-fsl",
   liveUrl: "https://github.com/Raysantos22",
   repoUrl: "https://github.com/Raysantos22",
@@ -1304,7 +1304,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
   tagText: "🐍 Real-time snake identification and safety tool",
   tagColor: darkMode => darkMode ? "text-red-300" : "text-red-600",
   type: "mobile",
-  imagePath: "/images/snakedetection.png",
+  imagePath: "/images/snakedetection8.png",
   projectLink: "/projects/snake-identifier",
   liveUrl: "https://github.com/Raysantos22",
   repoUrl: "https://github.com/Raysantos22",
@@ -1404,7 +1404,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
   tagText: "🎧 Assistive object detection for the visually impaired",
   tagColor: darkMode => darkMode ? "text-yellow-300" : "text-yellow-600",
   type: "mobile",
-  imagePath: "/images/blinddetection.png",
+  imagePath: "/images/blinddetection2.png",
   projectLink: "/projects/ai-vision-assist",
   liveUrl: "https://github.com/Raysantos22",
   repoUrl: "https://github.com/Raysantos22",
@@ -1510,7 +1510,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
             tagText: "In-house POS system for BW Super Bakeshop",
             tagColor: darkMode => darkMode ? "text-blue-300" : "text-blue-600",
             type: "website",
-            imagePath: "/images/ecposlaptop.png",
+            imagePath: "/images/ecposlaptop1.png",
             projectLink: "/projects/ecpos-system",
             liveUrl: "https://github.com/Raysantos22",
             repoUrl: "https://github.com/Raysantos22",
@@ -1788,7 +1788,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
   tagText: "📍 Real-time TSU campus navigation for freshmen",
   tagColor: darkMode => darkMode ? "text-purple-300" : "text-purple-600",
   type: "mobile",
-  imagePath: "/images/foxnav2.png",
+  imagePath: "/images/foxnav5.png",
   projectLink: "/projects/foxnav-navigation",
   liveUrl: "https://github.com/Raysantos22",
   repoUrl: "https://github.com/Raysantos22",
@@ -1885,7 +1885,7 @@ const ProjectModal = ({ project, isOpen, onClose, darkMode }) => {
   tagText: "🦷 AI-based oral disease detection for smokers",
   tagColor: darkMode => darkMode ? "text-red-300" : "text-red-600",
   type: "mobile" ,
-  imagePath: "/images/oralguard1.png",
+  imagePath: "/images/oralguard2.png",
   projectLink: "/projects/oral-health-detection",
   liveUrl: "https://github.com/Raysantos22",
   repoUrl: "https://github.com/Raysantos22",
@@ -2547,7 +2547,7 @@ useEffect(() => {
           right: window.innerWidth < 1024 ? "-290px" : "-320px",
           width: window.innerWidth < 1024 ? "75%" : "105%",
         },
-        "/images/ecposlaptop.png": {
+        "/images/ecposlaptop1.png": {
           right: window.innerWidth < 1024 ? "-290px" : "-320px",
           width: window.innerWidth < 1024 ? "75%" : "105%",
         },
@@ -3007,6 +3007,101 @@ useEffect(() => {
   
   {/* Main Tech Grid - Now with enhanced animations and 6 columns */}
   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 md:gap-8 max-w-6xl mx-auto relative z-10">
+     {/* Kotlin */}
+    <div className="tech-card group">
+      <div className="tech-icon-container bg-gradient-to-br from-purple-500 to-purple-700">
+        <img src="/images/kotlin.png" alt="Kotlin" className="tech-icon" />
+        
+        {/* Rating that appears on hover */}
+        <div className="tech-rating">
+          <span className="rating-value">90%</span>
+          <div className="rating-bar">
+            <div className="rating-fill" style={{width: '98%'}}></div>
+          </div>
+        </div>
+      </div>
+      <span className="tech-label">Kotlin</span>
+    </div>
+        {/* Java */}
+    <div className="tech-card group">
+      <div className="tech-icon-container bg-gradient-to-br from-indigo-600 to-indigo-800">
+        <img src="/images/java.png" alt="Java" className="tech-icon" />
+        
+        {/* Rating that appears on hover */}
+        <div className="tech-rating">
+          <span className="rating-value">80%</span>
+          <div className="rating-bar">
+            <div className="rating-fill" style={{width: '95%'}}></div>
+          </div>
+        </div>
+      </div>
+      <span className="tech-label">Java</span>
+    </div>
+      {/* Python */}
+    <div className="tech-card group">
+      <div className="tech-icon-container bg-gradient-to-br from-blue-500 to-indigo-600">
+        <img src="/images/python.png" alt="Python" className="tech-icon" />
+        
+        {/* Rating that appears on hover */}
+        <div className="tech-rating">
+          <span className="rating-value">80%</span>
+          <div className="rating-bar">
+            <div className="rating-fill" style={{width: '88%'}}></div>
+          </div>
+        </div>
+      </div>
+      <span className="tech-label">Python</span>
+    </div>
+        {/* Laravel */}
+    <div className="tech-card group">
+      <div className="tech-icon-container bg-gradient-to-br from-red-500 to-red-700">
+        <img src="/images/laravel.png" alt="Laravel" className="tech-icon" />
+        
+        {/* Rating that appears on hover */}
+        <div className="tech-rating">
+          <span className="rating-value">80 %</span>
+          <div className="rating-bar">
+            <div className="rating-fill" style={{width: '79%'}}></div>
+          </div>
+        </div>
+      </div>
+      <span className="tech-label">Laravel</span>
+    </div>
+        {/* PHP */}
+    <div className="tech-card group">
+      <div className="tech-icon-container bg-gradient-to-br from-indigo-400 to-indigo-600">
+        <img src="/images/php.png" alt="PHP" className="tech-icon" />
+        
+        {/* Rating that appears on hover */}
+        <div className="tech-rating">
+          <span className="rating-value">80%</span>
+          <div className="rating-bar">
+            <div className="rating-fill" style={{width: '80%'}}></div>
+          </div>
+        </div>
+      </div>
+      <span className="tech-label">PHP</span>
+    </div>
+        
+    {/* React */}
+    <div className="tech-card group">
+      <div className="tech-icon-container bg-gradient-to-br from-blue-400 to-blue-600">
+        <img src="/images/react.png" alt="React" className="tech-icon" />
+        
+        {/* Rating that appears on hover */}
+        <div className="tech-rating">
+          
+          <span className="rating-value">60%</span>
+          <div className="rating-bar">
+            <div className="rating-fill" style={{width: '87%'}}></div>
+          </div>
+        </div>
+      </div>
+      <span className="tech-label">React</span>
+    </div>
+
+
+    
     {/* HTML */}
     <div className="tech-card group">
       <div className="tech-icon-container bg-gradient-to-br from-orange-500 to-orange-700">
@@ -3014,10 +3109,10 @@ useEffect(() => {
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-        <svg className={`w-10 h-10 ${darkMode ? 'text-green-300' : 'text-green-700'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {/* <svg className={`w-10 h-10 ${darkMode ? 'text-green-300' : 'text-green-700'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-          <span className="rating-value">95%</span>
+                  </svg> */}
+          <span className="rating-value">85%</span>
           <div className="rating-bar">
             <div className="rating-fill" style={{width: '95%'}}></div>
           </div>
@@ -3033,7 +3128,7 @@ useEffect(() => {
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">90%</span>
+          <span className="rating-value">85%</span>
           <div className="rating-bar">
             <div className="rating-fill" style={{width: '90%'}}></div>
           </div>
@@ -3041,7 +3136,21 @@ useEffect(() => {
       </div>
       <span className="tech-label">CSS</span>
     </div>
-    
+     {/* Tailwind */}
+    <div className="tech-card group">
+      <div className="tech-icon-container bg-gradient-to-br from-cyan-500 to-cyan-700">
+        <img src="/images/tailwind.png" alt="Tailwind CSS" className="tech-icon" />
+        
+        {/* Rating that appears on hover */}
+        <div className="tech-rating">
+          <span className="rating-value">85%</span>
+          <div className="rating-bar">
+            <div className="rating-fill" style={{width: '88%'}}></div>
+          </div>
+        </div>
+      </div>
+      <span className="tech-label">Tailwind CSS</span>
+    </div>
     {/* JavaScript */}
     <div className="tech-card group">
       <div className="tech-icon-container bg-gradient-to-br from-yellow-400 to-yellow-600">
@@ -3057,22 +3166,22 @@ useEffect(() => {
       </div>
       <span className="tech-label">JavaScript</span>
     </div>
-    
-    {/* Tailwind */}
+            {/* Node */}
     <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-cyan-500 to-cyan-700">
-        <img src="/images/tailwind.png" alt="Tailwind CSS" className="tech-icon" />
+      <div className="tech-icon-container bg-gradient-to-br from-green-600 to-green-800">
+        <img src="/images/node.png" alt="Node JS" className="tech-icon" />
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">88%</span>
+          <span className="rating-value">70%</span>
           <div className="rating-bar">
-            <div className="rating-fill" style={{width: '88%'}}></div>
+            <div className="rating-fill" style={{width: '80%'}}></div>
           </div>
         </div>
       </div>
-      <span className="tech-label">Tailwind CSS</span>
+      <span className="tech-label">Node JS</span>
     </div>
+   
     
     {/* Express */}
     <div className="tech-card group">
@@ -3081,7 +3190,7 @@ useEffect(() => {
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">82%</span>
+          <span className="rating-value">50%</span>
           <div className="rating-bar">
             <div className="rating-fill" style={{width: '82%'}}></div>
           </div>
@@ -3090,52 +3199,20 @@ useEffect(() => {
       <span className="tech-label">Express JS</span>
     </div>
     
-    {/* Node */}
+  {/* MySQL */}
     <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-green-600 to-green-800">
-        <img src="/images/node.png" alt="Node JS" className="tech-icon" />
+      <div className="tech-icon-container bg-gradient-to-br from-blue-300 to-blue-500">
+        <img src="/images/mysql.png" alt="MySQL" className="tech-icon" />
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">80%</span>
+          <span className="rating-value">85%</span>
           <div className="rating-bar">
-            <div className="rating-fill" style={{width: '80%'}}></div>
+            <div className="rating-fill" style={{width: '86%'}}></div>
           </div>
         </div>
       </div>
-      <span className="tech-label">Node JS</span>
-    </div>
-    
-    {/* React */}
-    <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-blue-400 to-blue-600">
-        <img src="/images/react.png" alt="React" className="tech-icon" />
-        
-        {/* Rating that appears on hover */}
-        <div className="tech-rating">
-          <span className="rating-value">87%</span>
-          <div className="rating-bar">
-            <div className="rating-fill" style={{width: '87%'}}></div>
-          </div>
-        </div>
-      </div>
-      <span className="tech-label">React</span>
-    </div>
-    
-    {/* MongoDB */}
-    <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-green-700 to-green-900">
-        <img src="/images/mongo.png" alt="MongoDB" className="tech-icon" />
-        
-        {/* Rating that appears on hover */}
-        <div className="tech-rating">
-          <span className="rating-value">78%</span>
-          <div className="rating-bar">
-            <div className="rating-fill" style={{width: '78%'}}></div>
-          </div>
-        </div>
-      </div>
-      <span className="tech-label">MongoDB</span>
+      <span className="tech-label">MySQL</span>
     </div>
     
     {/* Room DB */}
@@ -3146,7 +3223,7 @@ useEffect(() => {
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">92%</span>
+          <span className="rating-value">86%</span>
           <div className="rating-bar">
             <div className="rating-fill" style={{width: '92%'}}></div>
           </div>
@@ -3155,14 +3232,14 @@ useEffect(() => {
       <span className="tech-label">Room DB</span>
     </div>
     
-    {/* SQLite */}
+     {/* SQLite */}
     <div className="tech-card group">
       <div className="tech-icon-container bg-gradient-to-br from-blue-600 to-blue-800">
         <img src="/images/sqlite.png" alt="SQLite" className="tech-icon" />
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">89%</span>
+          <span className="rating-value">90%</span>
           <div className="rating-bar">
             <div className="rating-fill" style={{width: '89%'}}></div>
           </div>
@@ -3170,71 +3247,7 @@ useEffect(() => {
       </div>
       <span className="tech-label">SQLite</span>
     </div>
-    
-    {/* Docker */}
-    <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-blue-500 to-blue-700">
-        <img src="/images/docker.png" alt="Docker" className="tech-icon" />
         
-        {/* Rating that appears on hover */}
-        <div className="tech-rating">
-          <span className="rating-value">75%</span>
-          <div className="rating-bar">
-            <div className="rating-fill" style={{width: '75%'}}></div>
-          </div>
-        </div>
-      </div>
-      <span className="tech-label">Docker</span>
-    </div>
-    
-    {/* Laravel */}
-    <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-red-500 to-red-700">
-        <img src="/images/laravel.png" alt="Laravel" className="tech-icon" />
-        
-        {/* Rating that appears on hover */}
-        <div className="tech-rating">
-          <span className="rating-value">79%</span>
-          <div className="rating-bar">
-            <div className="rating-fill" style={{width: '79%'}}></div>
-          </div>
-        </div>
-      </div>
-      <span className="tech-label">Laravel</span>
-    </div>
-    
-    {/* Git */}
-    <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-blue-800 to-indigo-900">
-        <img src="/images/git.png" alt="Git" className="tech-icon" />
-        
-        {/* Rating that appears on hover */}
-        <div className="tech-rating">
-          <span className="rating-value">88%</span>
-          <div className="rating-bar">
-            <div className="rating-fill" style={{width: '88%'}}></div>
-          </div>
-        </div>
-      </div>
-      <span className="tech-label">Git</span>
-    </div>
-    
-    {/* Postman */}
-    <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-purple-400 to-purple-600">
-        <img src="/images/postman.png" alt="Postman" className="tech-icon" />
-        
-        {/* Rating that appears on hover */}
-        <div className="tech-rating">
-          <span className="rating-value">91%</span>
-          <div className="rating-bar">
-            <div className="rating-fill" style={{width: '91%'}}></div>
-          </div>
-        </div>
-      </div>
-      <span className="tech-label">Postman</span>
-    </div>
-    
     {/* Firebase */}
     <div className="tech-card group">
       <div className="tech-icon-container bg-gradient-to-br from-yellow-600 to-amber-700">
@@ -3242,7 +3255,7 @@ useEffect(() => {
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">85%</span>
+          <span className="rating-value">90%</span>
           <div className="rating-bar">
             <div className="rating-fill" style={{width: '85%'}}></div>
           </div>
@@ -3251,38 +3264,60 @@ useEffect(() => {
       <span className="tech-label">Firebase</span>
     </div>
     
-    {/* MySQL */}
+    {/* MongoDB */}
     <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-blue-300 to-blue-500">
-        <img src="/images/mysql.png" alt="MySQL" className="tech-icon" />
+      <div className="tech-icon-container bg-gradient-to-br from-green-700 to-green-900">
+        <img src="/images/mongo.png" alt="MongoDB" className="tech-icon" />
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">86%</span>
+          <span className="rating-value">50%</span>
           <div className="rating-bar">
-            <div className="rating-fill" style={{width: '86%'}}></div>
+            <div className="rating-fill" style={{width: '78%'}}></div>
           </div>
         </div>
       </div>
-      <span className="tech-label">MySQL</span>
+      <span className="tech-label">MongoDB</span>
     </div>
     
-    {/* Java */}
+
+    
+   
+    {/* Docker */}
     <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-indigo-600 to-indigo-800">
-        <img src="/images/java.png" alt="Java" className="tech-icon" />
+      <div className="tech-icon-container bg-gradient-to-br from-blue-500 to-blue-700">
+        <img src="/images/docker.png" alt="Docker" className="tech-icon" />
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">95%</span>
+          <span className="rating-value">50%</span>
           <div className="rating-bar">
-            <div className="rating-fill" style={{width: '95%'}}></div>
+            <div className="rating-fill" style={{width: '75%'}}></div>
           </div>
         </div>
       </div>
-      <span className="tech-label">Java</span>
+      <span className="tech-label">Docker</span>
     </div>
     
+
+    
+    {/* Git */}
+    <div className="tech-card group">
+      <div className="tech-icon-container bg-gradient-to-br from-blue-800 to-indigo-900">
+        <img src="/images/git.png" alt="Git" className="tech-icon" />
+        
+        {/* Rating that appears on hover */}
+        <div className="tech-rating">
+          <span className="rating-value">50%</span>
+          <div className="rating-bar">
+            <div className="rating-fill" style={{width: '88%'}}></div>
+          </div>
+        </div>
+      </div>
+      <span className="tech-label">Git</span>
+    </div>
+
+  
     {/* TensorFlow */}
     <div className="tech-card group">
       <div className="tech-icon-container bg-gradient-to-br from-orange-500 to-orange-700">
@@ -3290,7 +3325,7 @@ useEffect(() => {
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">78%</span>
+          <span className="rating-value">70%</span>
           <div className="rating-bar">
             <div className="rating-fill" style={{width: '78%'}}></div>
           </div>
@@ -3306,7 +3341,7 @@ useEffect(() => {
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">74%</span>
+          <span className="rating-value">70%</span>
           <div className="rating-bar">
             <div className="rating-fill" style={{width: '74%'}}></div>
           </div>
@@ -3315,62 +3350,14 @@ useEffect(() => {
       <span className="tech-label">PyTorch</span>
     </div>
     
-    {/* Python */}
-    <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-blue-500 to-indigo-600">
-        <img src="/images/python.png" alt="Python" className="tech-icon" />
-        
-        {/* Rating that appears on hover */}
-        <div className="tech-rating">
-          <span className="rating-value">88%</span>
-          <div className="rating-bar">
-            <div className="rating-fill" style={{width: '88%'}}></div>
-          </div>
-        </div>
-      </div>
-      <span className="tech-label">Python</span>
-    </div>
-    
-    {/* PHP */}
-    <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-indigo-400 to-indigo-600">
-        <img src="/images/php.png" alt="PHP" className="tech-icon" />
-        
-        {/* Rating that appears on hover */}
-        <div className="tech-rating">
-          <span className="rating-value">80%</span>
-          <div className="rating-bar">
-            <div className="rating-fill" style={{width: '80%'}}></div>
-          </div>
-        </div>
-      </div>
-      <span className="tech-label">PHP</span>
-    </div>
-    
-    {/* Android Studio */}
-    <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-green-500 to-green-700">
-        <img src="/images/androidstudio.png" alt="Android Studio" className="tech-icon" />
-        
-        {/* Rating that appears on hover */}
-        <div className="tech-rating">
-          <span className="rating-value">96%</span>
-          <div className="rating-bar">
-            <div className="rating-fill" style={{width: '96%'}}></div>
-          </div>
-        </div>
-      </div>
-      <span className="tech-label">Android Studio</span>
-    </div>
-    
-    {/* OpenCV */}
+  {/* OpenCV */}
     <div className="tech-card group">
       <div className="tech-icon-container bg-gradient-to-br from-green-600 to-green-800">
         <img src="/images/opencv.png" alt="OpenCV" className="tech-icon" />
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">83%</span>
+          <span className="rating-value">70%</span>
           <div className="rating-bar">
             <div className="rating-fill" style={{width: '83%'}}></div>
           </div>
@@ -3379,21 +3366,42 @@ useEffect(() => {
       <span className="tech-label">OpenCV</span>
     </div>
     
-    {/* Kotlin */}
+    
+    
+    {/* Postman */}
     <div className="tech-card group">
-      <div className="tech-icon-container bg-gradient-to-br from-purple-500 to-purple-700">
-        <img src="/images/kotlin.png" alt="Kotlin" className="tech-icon" />
+      <div className="tech-icon-container bg-gradient-to-br from-purple-400 to-purple-600">
+        <img src="/images/postman.png" alt="Postman" className="tech-icon" />
         
         {/* Rating that appears on hover */}
         <div className="tech-rating">
-          <span className="rating-value">98%</span>
+          <span className="rating-value">80%</span>
           <div className="rating-bar">
-            <div className="rating-fill" style={{width: '98%'}}></div>
+            <div className="rating-fill" style={{width: '91%'}}></div>
           </div>
         </div>
       </div>
-      <span className="tech-label">Kotlin</span>
+      <span className="tech-label">Postman</span>
     </div>
+
+    {/* Android Studio */}
+    <div className="tech-card group">
+      <div className="tech-icon-container bg-gradient-to-br from-green-500 to-green-700">
+        <img src="/images/androidstudio.png" alt="Android Studio" className="tech-icon" />
+        
+        {/* Rating that appears on hover */}
+        <div className="tech-rating">
+          <span className="rating-value">95%</span>
+          <div className="rating-bar">
+            <div className="rating-fill" style={{width: '96%'}}></div>
+          </div>
+        </div>
+      </div>
+      <span className="tech-label">Android Studio</span>
+    </div>
+    
+    
+   
   </div>
 </div>
   {/* Add CSS styles */}
